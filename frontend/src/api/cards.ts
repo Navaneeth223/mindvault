@@ -59,7 +59,15 @@ export interface CreateCardData {
 
 export const cardsApi = {
   list: async (params?: Record<string, any>): Promise<CardListResponse> => {
-    const response = await client.get('/api/cards/', { params })
+    // Normalise boolean params — django-filter expects 'true'/'false' strings
+    const normalised: Record<string, any> = {}
+    if (params) {
+      for (const [k, v] of Object.entries(params)) {
+        if (v === undefined || v === null) continue
+        normalised[k] = typeof v === 'boolean' ? String(v) : v
+      }
+    }
+    const response = await client.get('/api/cards/', { params: normalised })
     return response.data
   },
 

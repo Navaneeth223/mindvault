@@ -47,10 +47,10 @@ export default function AppLayout() {
           {/* Content Area */}
           <main className="flex-1 overflow-y-auto scrollbar-custom">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="p-6 md:p-8"
+              transition={{ duration: 0.3 }}
+              className="p-4 md:p-8 pb-24 md:pb-8"
             >
               <Outlet />
             </motion.div>
