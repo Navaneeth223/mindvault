@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base Styles ────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-dark-border;
+  }
+
+  body {
+    @apply bg-dark-bg text-dark-text-primary font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+
+  code, pre {
+    @apply font-mono;
+  }
+}
+
+/* ─── Custom Utilities ──────────────────────────────────────────────────────*/
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom scrollbar for dark theme */
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    @apply bg-dark-surface;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    @apply bg-dark-text-muted rounded-full;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    @apply bg-dark-text-secondary;
+  }
+}
+
+/* ─── Animations ────────────────────────────────────────────────────────────*/
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  @apply bg-gradient-to-r from-dark-surface via-dark-text-muted/10 to-dark-surface;
+  background-size: 2000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ─── Card Hover Effect ─────────────────────────────────────────────────────*/
+.card-hover {
+  @apply transition-all duration-200 ease-out;
+}
+
+.card-hover:hover {
+  @apply -translate-y-0.5 shadow-lg;
+}
+
+/* ─── Focus Styles ──────────────────────────────────────────────────────────*/
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-dark-bg;
+}
+
+/* ─── Markdown Content ──────────────────────────────────────────────────────*/
+.markdown-content {
+  max-width: none;
+  color: var(--color-text-primary);
+}
+
+.markdown-content h1 {
+  @apply text-2xl font-serif font-bold mb-4;
+}
+
+.markdown-content h2 {
+  @apply text-xl font-serif font-bold mb-3;
+}
+
+.markdown-content h3 {
+  @apply text-lg font-serif font-semibold mb-2;
+}
+
+.markdown-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+.markdown-content code {
+  @apply bg-dark-surface px-1.5 py-0.5 rounded text-sm font-mono text-accent-cyan;
+}
+
+.markdown-content pre {
+  @apply bg-dark-surface p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+.markdown-content pre code {
+  @apply bg-transparent p-0 text-dark-text-primary;
+}
+
+.markdown-content ul, .markdown-content ol {
+  @apply mb-4 ml-6;
+}
+
+.markdown-content li {
+  @apply mb-2;
+}
+
+.markdown-content a {
+  @apply text-accent-cyan hover:underline;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-accent-cyan pl-4 italic text-dark-text-secondary;
+}

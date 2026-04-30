@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: mindvault-api
+    runtime: python
+    rootDir: .
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mindvault-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: mindvault-redis
+          type: redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: mindvault-redis
+          type: redis
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: mindvault-api.onrender.com
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://mindvault.vercel.app
+      - key: WHISPER_MODEL
+        value: tiny
+    healthCheckPath: /api/auth/login/
+
+  - type: redis
+    name: mindvault-redis
+    plan: free
+    maxmemoryPolicy: noeviction
+
+databases:
+  - name: mindvault-db
+    plan: free

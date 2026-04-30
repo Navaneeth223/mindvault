@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.vite/
+public/icons/
+public/favicon.ico
+public/apple-touch-icon.png
+*.local
