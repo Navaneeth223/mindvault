@@ -113,3 +113,11 @@ console.log('   • 1 badge icon')
 console.log('   • 1 favicon')
 console.log('   • 1 apple-touch-icon')
 console.log(`   • Total: ${sizes.length + 6} files\n`)
+
+// Extension icons
+import { mkdirSync as mkdirSyncExt } from 'fs'
+mkdirSyncExt('../extension/icons', { recursive: true })
+await sharp(svgBuffer).resize(16, 16).png().toFile('../extension/icons/icon16.png')
+await sharp(svgBuffer).resize(48, 48).png().toFile('../extension/icons/icon48.png')
+await sharp(svgBuffer).resize(128, 128).png().toFile('../extension/icons/icon128.png')
+console.log('✓ extension icons (16, 48, 128)')

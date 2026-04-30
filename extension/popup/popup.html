@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MindVault</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 360px;
+      min-height: 200px;
+      background: #1a1a2e;
+      color: #e8e8f0;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 14px;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: #252540;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      background: linear-gradient(135deg, #00f5d4, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo svg { flex-shrink: 0; }
+    .settings-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b6b8a;
+      padding: 4px;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .settings-btn:hover { color: #e8e8f0; background: rgba(255,255,255,0.06); }
+
+    /* ── Auth screen ── */
+    #auth-screen {
+      padding: 24px 16px;
+      text-align: center;
+    }
+    #auth-screen p { color: #6b6b8a; margin-bottom: 16px; line-height: 1.5; }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px 16px;
+      background: #00f5d4;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Main screen ── */
+    #main-screen { padding: 12px; }
+
+    .page-preview {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #252540;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .page-favicon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .page-info { flex: 1; min-width: 0; }
+    .page-title {
+      font-weight: 500;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #e8e8f0;
+    }
+    .page-url {
+      font-size: 11px;
+      color: #6b6b8a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    /* ── Type selector ── */
+    .type-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .type-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 8px 10px;
+      background: #252540;
+      border: 1.5px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      cursor: pointer;
+      color: #6b6b8a;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .type-btn:hover { border-color: rgba(255,255,255,0.15); color: #e8e8f0; }
+    .type-btn.active { border-color: #00f5d4; background: rgba(0,245,212,0.08); color: #00f5d4; }
+    .type-icon { font-size: 16px; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 10px; }
+    .form-label { display: block; font-size: 11px; color: #6b6b8a; margin-bottom: 4px; font-weight: 500; }
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      background: #252540;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      color: #e8e8f0;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .form-input:focus { border-color: #00f5d4; }
+    .form-input::placeholder { color: #3d3d5c; }
+    textarea.form-input { resize: vertical; min-height: 70px; }
+
+    /* ── Actions ── */
+    .actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-secondary {
+      flex: 1;
+      padding: 9px;
+      background: #252540;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      color: #a1a1aa;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.15); color: #e8e8f0; }
+
+    /* ── Status ── */
+    .status {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .status.success { display: flex; background: rgba(0,245,212,0.1); color: #00f5d4; border: 1px solid rgba(0,245,212,0.2); }
+    .status.error   { display: flex; background: rgba(245,101,101,0.1); color: #f56565; border: 1px solid rgba(245,101,101,0.2); }
+    .status.loading { display: flex; background: rgba(255,255,255,0.04); color: #6b6b8a; border: 1px solid rgba(255,255,255,0.07); }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #00f5d4;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Note mode ── */
+    #note-fields { display: none; }
+    #note-fields.visible { display: block; }
+
+    /* ── User info ── */
+    .user-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(0,245,212,0.05);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #6b6b8a;
+    }
+    .user-dot { width: 8px; height: 8px; border-radius: 50%; background: #00f5d4; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="#00f5d4" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="5" stroke="#00f5d4" stroke-width="1" opacity="0.5"/>
+        <line x1="12" y1="3" x2="12" y2="7" stroke="#00f5d4" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="21" y1="12" x2="17" y2="12" stroke="#00f5d4" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="12" y1="21" x2="12" y2="17" stroke="#00f5d4" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="3" y1="12" x2="7" y2="12" stroke="#00f5d4" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="1.5" fill="#00f5d4"/>
+      </svg>
+      MindVault
+    </div>
+    <button class="settings-btn" id="open-settings" title="Settings">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Auth Screen -->
+  <div id="auth-screen" style="display:none">
+    <p>Connect MindVault to start saving pages, links, and notes from anywhere.</p>
+    <button class="btn-primary" id="go-to-settings">⚙️ Configure Server</button>
+  </div>
+
+  <!-- Main Screen -->
+  <div id="main-screen" style="display:none">
+    <!-- User bar -->
+    <div class="user-bar">
+      <div class="user-dot"></div>
+      <span id="user-name">Connected</span>
+    </div>
+
+    <!-- Page preview -->
+    <div class="page-preview">
+      <img class="page-favicon" id="page-favicon" src="" alt="" onerror="this.style.display='none'" />
+      <div class="page-info">
+        <div class="page-title" id="page-title">Loading...</div>
+        <div class="page-url" id="page-url"></div>
+      </div>
+    </div>
+
+    <!-- Type selector -->
+    <div class="type-row">
+      <button class="type-btn active" data-type="link">
+        <span class="type-icon">🔗</span>Link
+      </button>
+      <button class="type-btn" data-type="note">
+        <span class="type-icon">📝</span>Note
+      </button>
+      <button class="type-btn" data-type="youtube">
+        <span class="type-icon">▶️</span>YouTube
+      </button>
+      <button class="type-btn" data-type="github">
+        <span class="type-icon">🐙</span>GitHub
+      </button>
+      <button class="type-btn" data-type="code">
+        <span class="type-icon">💻</span>Code
+      </button>
+    </div>
+
+    <!-- Note fields (shown only for note type) -->
+    <div id="note-fields">
+      <div class="form-group">
+        <label class="form-label">Note content</label>
+        <textarea class="form-input" id="note-body" placeholder="Write your note here..."></textarea>
+      </div>
+    </div>
+
+    <!-- Title override -->
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="card-title" placeholder="Card title..." />
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn-secondary" id="open-vault">Open Vault</button>
+      <button class="btn-primary" id="save-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Save to Vault
+      </button>
+    </div>
+
+    <!-- Status -->
+    <div class="status" id="status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

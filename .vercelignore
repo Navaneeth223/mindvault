@@ -2,7 +2,6 @@
 apps/
 config/
 extension/
-media/
 nginx/
 staticfiles/
 manage.py
@@ -15,7 +14,6 @@ render.yaml
 build.sh
 seed_demo.py
 db.sqlite3
-*.md
 *.log
 .env
 __pycache__/
