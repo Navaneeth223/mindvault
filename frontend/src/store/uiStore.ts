@@ -6,8 +6,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-type Theme = 'dark' | 'light' | 'system'
-type ViewMode = 'grid' | 'list' | 'timeline'
+export type Theme = 'dark' | 'light' | 'system'
+export type ViewMode = 'grid' | 'list' | 'timeline'
 
 interface UIState {
   theme: Theme
@@ -16,10 +16,12 @@ interface UIState {
   searchOpen: boolean
   captureOpen: boolean
   activeCardId: string | null
-  
+  accentColour: string
+
   // Actions
   setTheme: (theme: Theme) => void
   setViewMode: (mode: ViewMode) => void
+  setAccentColour: (colour: string) => void
   toggleSidebar: () => void
   openSearch: () => void
   closeSearch: () => void
@@ -27,6 +29,17 @@ interface UIState {
   closeCapture: () => void
   openCardDetail: (cardId: string) => void
   closeCardDetail: () => void
+}
+
+function applyTheme(theme: Theme) {
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const isDark = theme === 'dark' || (theme === 'system' && prefersDark)
+  document.documentElement.classList.toggle('dark', isDark)
+  document.documentElement.classList.toggle('light', !isDark)
+}
+
+function applyAccent(colour: string) {
+  document.documentElement.style.setProperty('--accent-cyan', colour)
 }
 
 export const useUIStore = create<UIState>()(
@@ -38,28 +51,29 @@ export const useUIStore = create<UIState>()(
       searchOpen: false,
       captureOpen: false,
       activeCardId: null,
+      accentColour: '#00f5d4',
 
       setTheme: (theme) => {
         set({ theme })
-        // Apply theme to document
-        if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark')
-        } else {
-          document.documentElement.classList.remove('dark')
-        }
+        applyTheme(theme)
+      },
+
+      setAccentColour: (colour) => {
+        set({ accentColour: colour })
+        applyAccent(colour)
       },
 
       setViewMode: (mode) => set({ viewMode: mode }),
-
       toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
       openSearch: () => set({ searchOpen: true }),
       closeSearch: () => set({ searchOpen: false }),
 
-      openCapture: () => set({ captureOpen: true }),
+      // Never open capture while a card detail is open (prevents z-index fights)
+      openCapture: () => set({ captureOpen: true, activeCardId: null }),
       closeCapture: () => set({ captureOpen: false }),
 
-      openCardDetail: (cardId) => set({ activeCardId: cardId }),
+      openCardDetail: (cardId) => set({ activeCardId: cardId, captureOpen: false }),
       closeCardDetail: () => set({ activeCardId: null }),
     }),
     {
@@ -68,23 +82,24 @@ export const useUIStore = create<UIState>()(
         theme: state.theme,
         viewMode: state.viewMode,
         sidebarOpen: state.sidebarOpen,
+        accentColour: state.accentColour,
       }),
     }
   )
 )
 
-// Initialize theme on load
-const storedTheme = localStorage.getItem('ui-storage')
-if (storedTheme) {
+// ── Apply persisted theme + accent on page load ───────────────────────────────
+;(function initUI() {
   try {
-    const { state } = JSON.parse(storedTheme)
-    const theme = state.theme || 'dark'
-    if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark')
+    const raw = localStorage.getItem('ui-storage')
+    if (raw) {
+      const { state } = JSON.parse(raw)
+      applyTheme(state.theme || 'dark')
+      if (state.accentColour) applyAccent(state.accentColour)
+    } else {
+      applyTheme('dark')
     }
-  } catch (e) {
-    document.documentElement.classList.add('dark')
+  } catch {
+    applyTheme('dark')
   }
-} else {
-  document.documentElement.classList.add('dark')
-}
+})()

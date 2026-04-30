@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useAuthStore } from './store/authStore'
 import { useUIStore } from './store/uiStore'
 import AppLayout from './components/layout/AppLayout'
@@ -18,7 +19,14 @@ import CardDetail from './components/cards/CardDetail'
 
 function App() {
   const { isAuthenticated } = useAuthStore()
-  const { activeCardId, closeCardDetail } = useUIStore()
+  const { activeCardId, closeCardDetail, captureOpen, closeCapture } = useUIStore()
+  const location = useLocation()
+
+  // Close drawer and capture modal on route change
+  useEffect(() => {
+    closeCardDetail()
+    closeCapture()
+  }, [location.pathname])
 
   return (
     <>
@@ -60,8 +68,10 @@ function App() {
         </>
       )}
 
-      {/* Card Detail Drawer */}
-      {activeCardId && <CardDetail cardId={activeCardId} onClose={closeCardDetail} />}
+      {/* Card Detail Drawer — only render when we have a valid ID */}
+      {activeCardId && !captureOpen && (
+        <CardDetail cardId={activeCardId} onClose={closeCardDetail} />
+      )}
     </>
   )
 }

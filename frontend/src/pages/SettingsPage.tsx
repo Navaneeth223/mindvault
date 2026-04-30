@@ -6,13 +6,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  User, Palette, Bell, Shield, LogOut, ChevronRight,
-  Moon, Sun, Monitor, Check, Camera,
-} from 'lucide-react'
+import { LogOut, Moon, Sun, Monitor, Check, Camera } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useUIStore } from '@/store/uiStore'
-import { authApi } from '@/api/auth'
 import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -74,14 +70,13 @@ export default function SettingsPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user, logout, updateUser } = useAuthStore()
-  const { theme, setTheme } = useUIStore()
+  const { theme, setTheme, accentColour, setAccentColour } = useUIStore()
 
   const [firstName, setFirstName] = useState(user?.first_name || '')
   const [lastName, setLastName]   = useState(user?.last_name  || '')
   const [bio, setBio]             = useState(user?.bio        || '')
   const [editingProfile, setEditingProfile] = useState(false)
   const [notifications, setNotifications]   = useState(user?.notifications_enabled ?? true)
-  const [accent, setAccent] = useState(user?.accent_colour || '#00f5d4')
 
   // ── Profile update ────────────────────────────────────────────────────────
   const profileMutation = useMutation({
@@ -211,12 +206,12 @@ export default function SettingsPage() {
               {ACCENTS.map(a => (
                 <button
                   key={a.value}
-                  onClick={() => setAccent(a.value)}
+                  onClick={() => setAccentColour(a.value)}
                   title={a.name}
                   className="relative w-8 h-8 rounded-full transition-transform hover:scale-110"
                   style={{ backgroundColor: a.value }}
                 >
-                  {accent === a.value && (
+                  {accentColour === a.value && (
                     <Check className="absolute inset-0 m-auto w-4 h-4 text-dark-bg" />
                   )}
                 </button>

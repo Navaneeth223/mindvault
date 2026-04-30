@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── CSS Custom Properties (accent colour, overridable) ────────────────── */
+:root {
+  --accent-cyan: #00f5d4;
+}
+
+/* ─── Light Mode Overrides ───────────────────────────────────────────────── */
+html.light {
+  --tw-bg-opacity: 1;
+}
+
+html.light body {
+  background-color: #f4f4f8;
+  color: #18181b;
+}
+
+html.light .bg-dark-bg      { background-color: #f4f4f8 !important; }
+html.light .bg-dark-surface { background-color: #ffffff !important; }
+html.light .bg-dark-elevated{ background-color: #f0f0f5 !important; }
+html.light .bg-dark-hover   { background-color: rgba(0,0,0,0.04) !important; }
+
+html.light .text-dark-text-primary   { color: #18181b !important; }
+html.light .text-dark-text-secondary { color: #52525b !important; }
+html.light .text-dark-text-muted     { color: #a1a1aa !important; }
+
+html.light .border-dark-border { border-color: rgba(0,0,0,0.08) !important; }
+
+html.light .bg-dark-surface\/80 { background-color: rgba(255,255,255,0.85) !important; }
+html.light .bg-dark-surface\/50 { background-color: rgba(255,255,255,0.6) !important; }
+
 /* ─── Base Styles ────────────────────────────────────────────────────────── */
 @layer base {
   * {

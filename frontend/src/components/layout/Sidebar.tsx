@@ -4,11 +4,13 @@
  * Navigation sidebar with collections
  */
 import { NavLink } from 'react-router-dom'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Home, Star, Archive, Bell, Settings, Plus } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { collectionsApi } from '@/api/collections'
 import { cn } from '@/utils/cn'
+import CreateCollectionModal from '@/components/collections/CreateCollectionModal'
 
 const navItems = [
   { to: '/', icon: Home, label: 'Home' },
@@ -18,6 +20,8 @@ const navItems = [
 ]
 
 export default function Sidebar() {
+  const [showCreateCollection, setShowCreateCollection] = useState(false)
+
   const { data: collections = [] } = useQuery({
     queryKey: ['collections'],
     queryFn: collectionsApi.list,
@@ -81,6 +85,7 @@ export default function Sidebar() {
               Collections
             </h3>
             <button
+              onClick={() => setShowCreateCollection(true)}
               className="p-1 rounded-lg hover:bg-dark-hover transition-colors"
               title="New Collection"
             >
@@ -145,6 +150,12 @@ export default function Sidebar() {
           <span className="font-medium">Settings</span>
         </NavLink>
       </div>
+
+      {/* Create Collection Modal */}
+      <CreateCollectionModal
+        open={showCreateCollection}
+        onClose={() => setShowCreateCollection(false)}
+      />
     </div>
   )
 }

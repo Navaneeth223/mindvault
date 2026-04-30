@@ -46,6 +46,7 @@ export default function DetailActions({ card, onClose }: DetailActionsProps) {
     mutationFn: () => cardsApi.toggleArchive(card.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cards'] })
+      queryClient.invalidateQueries({ queryKey: ['cards-archived'] })
       toast.success(card.is_archived ? 'Restored from archive' : 'Moved to archive')
       onClose()
     },
