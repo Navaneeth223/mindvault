@@ -1,0 +1,25 @@
+# Ignore Django backend — Vercel only deploys the frontend
+apps/
+config/
+extension/
+media/
+nginx/
+staticfiles/
+manage.py
+requirements.txt
+Dockerfile.backend
+docker-compose.yml
+Makefile
+Procfile
+render.yaml
+build.sh
+seed_demo.py
+db.sqlite3
+*.md
+*.log
+.env
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
