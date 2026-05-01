@@ -73,11 +73,11 @@ export default function NoteMedia({ card }: NoteMediaProps) {
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            className="w-full min-h-[400px] px-4 py-3 bg-dark-surface border border-dark-border rounded-xl text-dark-text-primary placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:border-transparent resize-none font-mono text-sm leading-relaxed"
+            className="w-full min-h-[300px] max-h-[400px] px-4 py-3 bg-dark-surface border border-dark-border rounded-xl text-dark-text-primary placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:border-transparent resize-none font-mono text-sm leading-relaxed"
             placeholder="Write your note here... (Markdown supported)"
           />
         ) : (
-          <div className="text-dark-text-primary leading-relaxed">
+          <div className="text-dark-text-primary leading-relaxed max-h-[400px] overflow-y-auto">
             {body ? renderMarkdown(body) : (
               <p className="text-dark-text-muted italic">No content yet. Click Edit to add content.</p>
             )}

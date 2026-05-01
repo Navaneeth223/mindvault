@@ -5,7 +5,7 @@
  */
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Star, Plus, Bell, Settings } from 'lucide-react'
+import { Home, Star, Plus, Bell, Timer } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useUIStore } from '@/store/uiStore'
 import { cardsApi } from '@/api/cards'
@@ -64,7 +64,7 @@ export default function BottomNav() {
     { to: '/', icon: Home, label: 'Home', badge: null, end: true },
     { to: '/favourites', icon: Star, label: 'Favourites', badge: favCount, end: false },
     { to: '/reminders', icon: Bell, label: 'Reminders', badge: reminderCount, end: false },
-    { to: '/settings', icon: Settings, label: 'Settings', badge: null, end: false },
+    { to: '/timer', icon: Timer, label: 'Timer', badge: null, end: false },
   ]
 
   return (

@@ -1,53 +1,61 @@
 /**
  * Authentication Store
  * ─────────────────────────────────────────────────────────────────────────────
- * Manages user authentication state, tokens, and user profile.
+ * Fixed: isLoggingOut flag prevents double-logout loops.
+ * Fixed: checkAuth doesn't clear tokens on first 401 (interceptor handles it).
  */
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { authApi, User } from '../api/auth'
+import client from '../api/client'
+
+export interface User {
+  id: string
+  username: string
+  email: string
+  first_name: string
+  last_name: string
+  display_name: string
+  avatar_url: string | null
+  bio: string
+  theme: 'dark' | 'light' | 'system'
+  accent_colour: string
+  default_view: 'grid' | 'list' | 'timeline'
+  speech_language: 'en-US' | 'ml-IN'
+  notifications_enabled: boolean
+  card_count: number
+  date_joined: string
+  last_active_at: string | null
+}
 
 interface AuthState {
   user: User | null
-  accessToken: string | null
-  refreshToken: string | null
   isAuthenticated: boolean
   isLoading: boolean
-  
-  // Actions
+  isLoggingOut: boolean
+
   login: (username: string, password: string) => Promise<void>
   register: (data: any) => Promise<void>
-  logout: () => Promise<void>
+  logout: () => void
+  checkAuth: () => Promise<void>
   fetchUser: () => Promise<void>
   updateUser: (data: Partial<User>) => Promise<void>
-  setTokens: (access: string, refresh: string) => void
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      accessToken: localStorage.getItem('access_token'),
-      refreshToken: localStorage.getItem('refresh_token'),
       isAuthenticated: !!localStorage.getItem('access_token'),
       isLoading: false,
+      isLoggingOut: false,
 
       login: async (username, password) => {
         set({ isLoading: true })
         try {
-          const { access, refresh } = await authApi.login({ username, password })
-          
-          // Store tokens
-          localStorage.setItem('access_token', access)
-          localStorage.setItem('refresh_token', refresh)
-          
-          set({
-            accessToken: access,
-            refreshToken: refresh,
-            isAuthenticated: true,
-          })
-
-          // Fetch user profile
+          const { data } = await client.post('/api/auth/login/', { username, password })
+          localStorage.setItem('access_token', data.access)
+          localStorage.setItem('refresh_token', data.refresh)
+          set({ isAuthenticated: true, isLoading: false })
           await get().fetchUser()
         } catch (error) {
           set({ isLoading: false })
@@ -58,67 +66,66 @@ export const useAuthStore = create<AuthState>()(
       register: async (data) => {
         set({ isLoading: true })
         try {
-          await authApi.register(data)
+          await client.post('/api/auth/register/', data)
           set({ isLoading: false })
-          // User must login separately after registration
         } catch (error) {
           set({ isLoading: false })
           throw error
         }
       },
 
-      logout: async () => {
-        const { refreshToken } = get()
-        
+      logout: () => {
+        // Prevent double-logout
+        if (get().isLoggingOut) return
+        set({ isLoggingOut: true })
+
+        const refreshToken = localStorage.getItem('refresh_token')
+        if (refreshToken) {
+          client.post('/api/auth/logout/', { refresh: refreshToken }).catch(() => {})
+        }
+
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoggingOut: false,
+        })
+      },
+
+      checkAuth: async () => {
+        const accessToken = localStorage.getItem('access_token')
+        const refreshToken = localStorage.getItem('refresh_token')
+
+        if (!accessToken || !refreshToken) {
+          set({ isAuthenticated: false, isLoading: false })
+          return
+        }
+
+        set({ isLoading: true })
         try {
-          if (refreshToken) {
-            await authApi.logout(refreshToken)
-          }
-        } catch (error) {
-          console.error('Logout error:', error)
-        } finally {
-          // Clear tokens and state
-          localStorage.removeItem('access_token')
-          localStorage.removeItem('refresh_token')
-          
-          set({
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-          })
+          const { data } = await client.get('/api/auth/me/')
+          set({ user: data, isAuthenticated: true, isLoading: false })
+        } catch {
+          // Don't clear tokens here — the interceptor handles refresh.
+          // Only mark as not loading.
+          set({ isLoading: false })
         }
       },
 
       fetchUser: async () => {
-        set({ isLoading: true })
         try {
-          const user = await authApi.getCurrentUser()
-          set({ user, isLoading: false })
-        } catch (error) {
-          set({ isLoading: false })
-          throw error
+          const { data } = await client.get('/api/auth/me/')
+          set({ user: data })
+        } catch {
+          // Ignore — interceptor will handle token refresh
         }
       },
 
       updateUser: async (data) => {
-        try {
-          const updatedUser = await authApi.updateProfile(data)
-          set({ user: updatedUser })
-        } catch (error) {
-          throw error
-        }
-      },
-
-      setTokens: (access, refresh) => {
-        localStorage.setItem('access_token', access)
-        localStorage.setItem('refresh_token', refresh)
-        
-        set({
-          accessToken: access,
-          refreshToken: refresh,
-          isAuthenticated: true,
-        })
+        const { data: updated } = await client.patch('/api/auth/me/', data)
+        set({ user: updated })
+        return updated
       },
     }),
     {

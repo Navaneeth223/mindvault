@@ -8,8 +8,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import health_check
 
 urlpatterns = [
+    # Health check (no auth — used for dual-server detection)
+    path("api/health/", health_check, name="health_check"),
+
     # Django admin
     path("admin/", admin.site.urls),
 
@@ -35,6 +39,9 @@ urlpatterns = [
 
     # ── Export / Import ───────────────────────────────────────────────────────
     path("api/", include("apps.cards.export_urls")),
+
+    # ── Focus Timer ───────────────────────────────────────────────────────────
+    path("api/timer/", include("apps.timer.urls")),
 ]
 
 # Serve media files in development

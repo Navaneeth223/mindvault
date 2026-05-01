@@ -33,6 +33,12 @@ class CardType(models.TextChoices):
     REEL = "reel", "Reel / Short"
     CHAT = "chat", "Chat Excerpt"
     FILE = "file", "File"
+    MUSIC = "music", "Music"
+    VOICE = "voice", "Voice Note"
+    CODE = "code", "Code Snippet"
+    REEL = "reel", "Reel / Short"
+    CHAT = "chat", "Chat Excerpt"
+    FILE = "file", "File"
 
 
 class Card(models.Model):

@@ -6,7 +6,7 @@
 import { NavLink } from 'react-router-dom'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Home, Star, Archive, Bell, Settings, Plus } from 'lucide-react'
+import { Home, Star, Archive, Bell, Settings, Plus, Music2, Timer } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { collectionsApi } from '@/api/collections'
 import { cn } from '@/utils/cn'
@@ -16,6 +16,8 @@ const navItems = [
   { to: '/', icon: Home, label: 'Home' },
   { to: '/favourites', icon: Star, label: 'Favourites' },
   { to: '/reminders', icon: Bell, label: 'Reminders' },
+  { to: '/music', icon: Music2, label: 'Music' },
+  { to: '/timer', icon: Timer, label: 'Focus Timer' },
   { to: '/archive', icon: Archive, label: 'Archive' },
 ]
 

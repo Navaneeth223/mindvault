@@ -25,20 +25,13 @@ export default defineConfig(({ mode }) => {
           icons: [
             { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
             { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-            {
-              src: '/icons/icon-maskable.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'maskable',
-            },
+            { src: '/icons/icon-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
           categories: ['productivity', 'utilities'],
           shortcuts: [
-            {
-              name: 'Quick Add',
-              url: '/?capture=true',
-              description: 'Quickly add a new card',
-            },
+            { name: 'Quick Add', url: '/?capture=true', description: 'Quickly add a new card' },
+            { name: 'Focus Timer', url: '/timer', description: 'Start a focus session' },
+            { name: 'Music', url: '/music', description: 'Open music library' },
           ],
         },
         workbox: {
@@ -46,27 +39,17 @@ export default defineConfig(({ mode }) => {
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              },
+              options: { cacheName: 'google-fonts', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } },
             },
             {
               urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
               handler: 'CacheFirst',
-              options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              },
+              options: { cacheName: 'gstatic-fonts', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } },
             },
             {
               urlPattern: /\/api\/.*/i,
               handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-cache',
-                networkTimeoutSeconds: 10,
-                expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
-              },
+              options: { cacheName: 'api-cache', networkTimeoutSeconds: 10, expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 } },
             },
           ],
         },
@@ -74,6 +57,23 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       alias: { '@': path.resolve(__dirname, './src') },
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor':  ['react', 'react-dom', 'react-router-dom'],
+            'query-vendor':  ['@tanstack/react-query'],
+            'motion-vendor': ['framer-motion'],
+            'utils-vendor':  ['axios', 'zustand', 'date-fns'],
+          },
+        },
+      },
+      minify: 'terser',
+      terserOptions: {
+        compress: { drop_console: true, drop_debugger: true },
+      },
+      cssCodeSplit: true,
     },
     server: {
       host: '0.0.0.0',

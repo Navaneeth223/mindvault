@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "apps.collections",
     "apps.reminders",
     "apps.search",
+    "apps.timer",
 ]
 
 # ─── Middleware ────────────────────────────────────────────────────────────────

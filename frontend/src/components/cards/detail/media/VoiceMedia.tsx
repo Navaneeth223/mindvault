@@ -184,9 +184,11 @@ export default function VoiceMedia({ card }: VoiceMediaProps) {
               Copy
             </button>
           </div>
-          <p className="text-sm text-dark-text-secondary leading-relaxed whitespace-pre-wrap">
-            {card.transcript}
-          </p>
+          <div className="max-h-[200px] overflow-y-auto border border-accent-amber/20 rounded-xl p-3">
+            <p className="text-sm text-dark-text-secondary leading-relaxed whitespace-pre-wrap">
+              {card.transcript}
+            </p>
+          </div>
         </div>
       )}
     </div>

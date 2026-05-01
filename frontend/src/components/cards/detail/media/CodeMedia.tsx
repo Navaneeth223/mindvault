@@ -102,15 +102,17 @@ export default function CodeMedia({ card }: CodeMediaProps) {
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            className="w-full min-h-[400px] max-h-[600px] px-4 py-3 bg-dark-surface border border-dark-border rounded-xl text-dark-text-primary placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:border-transparent resize-none font-mono text-sm leading-relaxed overflow-y-auto"
+            className="w-full min-h-[300px] max-h-[400px] px-4 py-3 bg-dark-surface border border-dark-border rounded-xl text-dark-text-primary placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:border-transparent resize-none font-mono text-sm leading-relaxed overflow-y-auto"
             spellCheck={false}
           />
         ) : (
-          <pre className="max-h-[600px] overflow-y-auto">
-            <code className="block px-4 py-3 bg-dark-surface border border-dark-border rounded-xl text-dark-text-primary font-mono text-sm leading-relaxed whitespace-pre-wrap break-words">
-              {body || <span className="text-dark-text-muted italic">No code yet</span>}
-            </code>
-          </pre>
+          <div className="overflow-y-auto max-h-[400px] overflow-x-auto">
+            <pre>
+              <code className="block px-4 py-3 bg-dark-surface border border-dark-border rounded-xl text-dark-text-primary font-mono text-sm leading-relaxed whitespace-pre break-words">
+                {body || <span className="text-dark-text-muted italic">No code yet</span>}
+              </code>
+            </pre>
+          </div>
         )}
       </div>
 

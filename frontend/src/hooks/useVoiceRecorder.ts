@@ -208,15 +208,37 @@ export function useVoiceRecorder(): UseVoiceRecorder {
     chunksRef.current = []
   }, [audioUrl])
 
-  // Cleanup on unmount
+  // Cleanup on unmount — stops all media and clears all intervals
   useEffect(() => {
     return () => {
-      cleanup()
+      // Stop recording if active
+      if (mediaRecorderRef.current?.state === 'recording') {
+        mediaRecorderRef.current.stop()
+      }
+      // Stop all media tracks
+      streamRef.current?.getTracks().forEach(t => t.stop())
+      streamRef.current = null
+      // Close audio context
+      if (audioContextRef.current?.state !== 'closed') {
+        audioContextRef.current?.close()
+      }
+      audioContextRef.current = null
+      analyserRef.current = null
+      // Clear all intervals
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current)
+        durationIntervalRef.current = null
+      }
+      if (waveformIntervalRef.current) {
+        clearInterval(waveformIntervalRef.current)
+        waveformIntervalRef.current = null
+      }
+      // Revoke object URL
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl)
       }
     }
-  }, [cleanup, audioUrl])
+  }, []) // empty deps — runs only on unmount
 
   return {
     isRecording,

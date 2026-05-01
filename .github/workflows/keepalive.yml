@@ -1,0 +1,32 @@
+name: Keep Render Alive
+
+# Ping the Render backend every 14 minutes between 8AM and 10PM UTC
+# to prevent the free tier from sleeping.
+# GitHub Actions free tier: 2000 min/month
+# This uses ~1800 min/month (60 pings/day × 30 days) — within free tier.
+
+on:
+  schedule:
+    # Every 14 minutes, 8AM to 10PM UTC (covers most waking hours)
+    - cron: '0/14 8-22 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  ping:
+    name: Ping Render API
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Ping health endpoint
+        run: |
+          echo "Pinging MindVault API..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 30 \
+            https://mindvault-62ua.onrender.com/api/health/ || echo "000")
+          echo "Response status: $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Server is alive"
+          else
+            echo "⚠️ Server returned $STATUS (may be cold starting)"
+          fi

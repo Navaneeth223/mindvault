@@ -1,27 +1,45 @@
 /**
- * Axios API Client
+ * Axios API Client — Mutex Token Refresh
  * ─────────────────────────────────────────────────────────────────────────────
- * Configured with:
- * - JWT authentication (auto-attach tokens)
- * - Token refresh on 401
- * - Request/response interceptors
+ * Fixes the auth loop bug:
+ * - Only ONE token refresh happens at a time (mutex)
+ * - All other 401 requests queue and wait for the refresh
+ * - 503 (Render cold start) retries 3x with 2s delay instead of logging out
  */
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
 
+interface RetryConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean
+  _retryCount?: number
+}
+
+// ── Mutex state ───────────────────────────────────────────────────────────────
+let isRefreshing = false
+let failedQueue: Array<{
+  resolve: (token: string) => void
+  reject: (error: unknown) => void
+}> = []
+
+function processQueue(error: unknown, token: string | null = null) {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error)
+    else resolve(token!)
+  })
+  failedQueue = []
+}
+
+// ── Client setup ──────────────────────────────────────────────────────────────
 const API_URL = import.meta.env.VITE_API_URL || ''
 
-// Create axios instance
-const client = axios.create({
+const client: AxiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 })
 
-// Request interceptor: attach access token
+// REQUEST: attach access token
 client.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  (config) => {
     const token = localStorage.getItem('access_token')
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
@@ -31,53 +49,98 @@ client.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Response interceptor: handle 401 and refresh token
+// RESPONSE: handle 401 with mutex refresh + 503 retry
 client.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean
-    }
+    const originalRequest = error.config as RetryConfig
 
-    // If 401 and we haven't retried yet, attempt token refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
+    if (!originalRequest) return Promise.reject(error)
 
-      try {
-        const refreshToken = localStorage.getItem('refresh_token')
-        if (!refreshToken) {
-          throw new Error('No refresh token')
-        }
-
-        // Request new access token
-        const response = await axios.post(`${API_URL}/api/auth/token/refresh/`, {
-          refresh: refreshToken,
-        })
-
-        const { access, refresh } = response.data
-
-        // Store new tokens
-        localStorage.setItem('access_token', access)
-        if (refresh) {
-          localStorage.setItem('refresh_token', refresh)
-        }
-
-        // Retry original request with new token
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${access}`
-        }
+    // ── 503 / network error: Render is waking up — retry with backoff ─────────
+    const status = error.response?.status
+    if (!status || status === 503 || status === 502) {
+      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1
+      if (originalRequest._retryCount <= 3) {
+        const delay = originalRequest._retryCount * 2000 // 2s, 4s, 6s
+        await new Promise(resolve => setTimeout(resolve, delay))
         return client(originalRequest)
-      } catch (refreshError) {
-        // Refresh failed — clear tokens and redirect to login
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
-        window.location.href = '/login'
-        return Promise.reject(refreshError)
       }
+      return Promise.reject(error)
     }
 
-    return Promise.reject(error)
+    // ── Only handle 401 ───────────────────────────────────────────────────────
+    if (status !== 401) return Promise.reject(error)
+
+    // Don't retry if already retried
+    if (originalRequest._retry) return Promise.reject(error)
+
+    // Don't try to refresh if this IS the refresh request
+    if (originalRequest.url?.includes('/auth/token/refresh/')) {
+      clearAuthAndRedirect()
+      return Promise.reject(error)
+    }
+
+    originalRequest._retry = true
+
+    // ── If already refreshing, queue this request ─────────────────────────────
+    if (isRefreshing) {
+      return new Promise<string>((resolve, reject) => {
+        failedQueue.push({ resolve, reject })
+      })
+        .then(token => {
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${token}`
+          }
+          return client(originalRequest)
+        })
+        .catch(err => Promise.reject(err))
+    }
+
+    // ── Perform the refresh (only once) ───────────────────────────────────────
+    isRefreshing = true
+
+    try {
+      const refreshToken = localStorage.getItem('refresh_token')
+      if (!refreshToken) throw new Error('No refresh token')
+
+      // Use a fresh axios instance to avoid interceptor loop
+      const response = await axios.post(
+        `${API_URL}/api/auth/token/refresh/`,
+        { refresh: refreshToken },
+        { timeout: 15000 }
+      )
+
+      const { access, refresh } = response.data
+      localStorage.setItem('access_token', access)
+      if (refresh) localStorage.setItem('refresh_token', refresh)
+
+      client.defaults.headers.common.Authorization = `Bearer ${access}`
+      if (originalRequest.headers) {
+        originalRequest.headers.Authorization = `Bearer ${access}`
+      }
+
+      processQueue(null, access)
+      return client(originalRequest)
+    } catch (refreshError) {
+      processQueue(refreshError, null)
+      clearAuthAndRedirect()
+      return Promise.reject(refreshError)
+    } finally {
+      isRefreshing = false
+    }
   }
 )
+
+function clearAuthAndRedirect() {
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
+  // Debounce redirect to avoid loop
+  setTimeout(() => {
+    if (!window.location.pathname.includes('/login')) {
+      window.location.href = '/login'
+    }
+  }, 100)
+}
 
 export default client

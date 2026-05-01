@@ -97,3 +97,59 @@ help:
 	@echo "  make logs           Tail all logs"
 	@echo "  make superuser      Create Django superuser"
 	@echo ""
+
+# ─── Local Docker (no cloud, instant startup) ─────────────────────────────────
+
+# Quick start — runs everything locally (backend + frontend + redis)
+start:
+	@echo "🚀 Starting MindVault locally..."
+	@cd frontend && npm run build 2>/dev/null || echo "⚠️  Frontend not built yet, run: make build-frontend"
+	docker-compose -f docker-compose.local.yml up -d
+	@echo ""
+	@echo "✅ MindVault is running!"
+	@echo "   Backend:  http://localhost:8000"
+	@echo "   Frontend: http://localhost:3000"
+	@echo "   Health:   http://localhost:8000/api/health/"
+	@echo ""
+	@make local-ip
+
+# Start with live logs
+local:
+	docker-compose -f docker-compose.local.yml up
+
+# Start and rebuild images
+local-build:
+	docker-compose -f docker-compose.local.yml up --build
+
+# Stop local services
+local-down:
+	docker-compose -f docker-compose.local.yml down
+
+# Show your local IP address (for mobile app connection)
+local-ip:
+	@echo "📱 Your local IP address (enter this in mobile app Settings):"
+	@hostname -I 2>/dev/null | awk '{print "   http://" $$1 ":8000"}' || \
+	 ipconfig getifaddr en0 2>/dev/null | awk '{print "   http://" $$1 ":8000"}' || \
+	 echo "   Run 'ipconfig' (Windows) or 'ifconfig' (Mac/Linux) to find your IP"
+
+# Tail local backend logs
+local-logs:
+	docker-compose -f docker-compose.local.yml logs -f backend
+
+# Build frontend for local serving
+build-frontend:
+	@echo "🔨 Building frontend..."
+	cd frontend && npm install && npm run build
+	@echo "✅ Frontend built → frontend/dist/"
+
+# Create demo user in local Docker
+local-seed:
+	docker-compose -f docker-compose.local.yml exec backend python manage.py shell -c "\
+from apps.accounts.models import User; \
+User.objects.filter(username='demo').exists() or \
+User.objects.create_superuser('demo', 'demo@mindvault.local', 'demo1234'); \
+print('Demo user: demo / demo1234')"
+
+# Open Django shell in local Docker
+local-shell:
+	docker-compose -f docker-compose.local.yml exec backend python manage.py shell
