@@ -1,10 +1,12 @@
 /**
  * App Layout
  * ─────────────────────────────────────────────────────────────────────────────
- * Main application layout with sidebar, topbar, content area, and music player
+ * Fixed mobile: hamburger menu, slide-in sidebar overlay, auto-close on nav.
  */
-import { Outlet } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { X } from 'lucide-react'
 import { useUIStore } from '@/store/uiStore'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
@@ -14,54 +16,97 @@ import SearchModal from '../search/SearchModal'
 import GlobalMusicPlayer from '../music/GlobalMusicPlayer'
 
 export default function AppLayout() {
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const { sidebarOpen } = useUIStore()
+  const location = useLocation()
+
+  // Auto-close mobile sidebar on navigation
+  useEffect(() => {
+    setMobileSidebarOpen(false)
+  }, [location.pathname])
+
+  // Escape key closes mobile sidebar
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileSidebarOpen(false)
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [])
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text-primary">
-      {/* Background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-dark-bg via-dark-bg to-dark-surface/30 pointer-events-none" />
+    <div className="min-h-screen bg-dark-bg text-dark-text-primary flex flex-col">
+      {/* TopBar */}
+      <TopBar onMenuClick={() => setMobileSidebarOpen(p => !p)} />
 
-      <div className="relative flex h-screen overflow-hidden">
-        {/* Sidebar - Desktop */}
-        <AnimatePresence mode="wait">
-          {sidebarOpen && (
-            <motion.aside
-              initial={{ x: -240, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -240, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="hidden md:flex md:flex-col w-60 flex-shrink-0 border-r border-dark-border bg-dark-surface/50 backdrop-blur-xl"
-            >
-              <Sidebar />
-            </motion.aside>
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Desktop sidebar — always visible on md+ */}
+        {sidebarOpen && (
+          <aside className="hidden md:flex flex-col w-60 flex-shrink-0 border-r border-dark-border bg-dark-surface/50 backdrop-blur-xl overflow-y-auto">
+            <Sidebar onClose={() => {}} />
+          </aside>
+        )}
+
+        {/* Mobile sidebar overlay */}
+        <AnimatePresence>
+          {mobileSidebarOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                key="backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+                onClick={() => setMobileSidebarOpen(false)}
+              />
+
+              {/* Sidebar panel */}
+              <motion.aside
+                key="sidebar"
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="md:hidden fixed left-0 top-0 h-full w-72 z-50 bg-dark-surface border-r border-dark-border overflow-y-auto flex flex-col shadow-2xl"
+              >
+                {/* Close button row */}
+                <div className="flex items-center justify-between px-4 pt-12 pb-4 border-b border-dark-border flex-shrink-0">
+                  <span className="font-serif text-lg font-bold bg-gradient-to-r from-accent-cyan to-accent-indigo bg-clip-text text-transparent">
+                    MindVault
+                  </span>
+                  <button
+                    onClick={() => setMobileSidebarOpen(false)}
+                    className="p-2 rounded-lg hover:bg-dark-hover text-dark-text-muted hover:text-dark-text-primary transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <Sidebar onClose={() => setMobileSidebarOpen(false)} />
+              </motion.aside>
+            </>
           )}
         </AnimatePresence>
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-          {/* TopBar */}
-          <TopBar />
-
-          {/* Content Area */}
-          <main className="flex-1 overflow-y-auto scrollbar-custom">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="p-4 md:p-8 pb-24 md:pb-8"
-            >
+        {/* Main content */}
+        <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <div className="p-4 md:p-8 pb-32 md:pb-8">
               <Outlet />
-            </motion.div>
-          </main>
+            </div>
+          </div>
 
-          {/* Global Music Player — above bottom nav */}
+          {/* Global Music Player */}
           <GlobalMusicPlayer />
-        </div>
+        </main>
+      </div>
 
-        {/* Bottom Navigation - Mobile */}
-        <div className="md:hidden">
-          <BottomNav />
-        </div>
+      {/* Bottom nav — mobile only */}
+      <div className="md:hidden">
+        <BottomNav />
       </div>
 
       {/* Modals */}

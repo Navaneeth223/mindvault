@@ -9,6 +9,7 @@ import { X } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { useUIStore } from '@/store/uiStore'
+import { useBreakpoint } from '@/hooks/useBreakpoint'
 import { cardsApi } from '@/api/cards'
 import CaptureTypeSelector, { CaptureType } from './CaptureTypeSelector'
 import URLCapture from './URLCapture'
@@ -45,11 +46,25 @@ function detectUrlType(url: string): CaptureType {
 export default function QuickCaptureModal() {
   const { captureOpen, closeCapture } = useUIStore()
   const queryClient = useQueryClient()
+  const { isMobile } = useBreakpoint()
 
   const [captureType, setCaptureType] = useState<CaptureType>('url')
   const [tags, setTags] = useState<string[]>([])
   const [collection, setCollection] = useState<string | null>(null)
   const [reminder, setReminder] = useState<string | null>(null)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+
+  // iOS keyboard height tracking
+  useEffect(() => {
+    const handler = () => {
+      if (window.visualViewport) {
+        const kbHeight = Math.max(0, window.innerHeight - window.visualViewport.height)
+        setKeyboardHeight(kbHeight)
+      }
+    }
+    window.visualViewport?.addEventListener('resize', handler, { passive: true })
+    return () => window.visualViewport?.removeEventListener('resize', handler)
+  }, [])
 
   // Reset state when modal closes
   useEffect(() => {
@@ -238,7 +253,10 @@ export default function QuickCaptureModal() {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="w-full max-w-2xl max-h-[90vh] bg-dark-surface border border-dark-border rounded-3xl shadow-soft-lg pointer-events-auto overflow-hidden flex flex-col">
+            <div
+              className="w-full max-w-2xl max-h-[90vh] bg-dark-surface border border-dark-border rounded-3xl shadow-soft-lg pointer-events-auto overflow-hidden flex flex-col"
+              style={isMobile && keyboardHeight > 0 ? { marginBottom: keyboardHeight } : undefined}
+            >
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-dark-border flex-shrink-0">
                 <h2 className="text-xl font-serif font-semibold">Quick Capture</h2>
