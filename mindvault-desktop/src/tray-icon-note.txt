@@ -1,0 +1,3 @@
+Place a 16x16 or 22x22 PNG icon here named 'tray-icon.png'.
+Use the vault icon from mindvault/frontend/public/icons/icon-16.png
+or generate it with: npm run generate:icons in the frontend folder.

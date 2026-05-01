@@ -91,7 +91,7 @@ export default function TimerPage() {
 
   const { data: statsData } = useQuery({
     queryKey: ['timer-stats-today'],
-    queryFn: () => client.get('/api/timer/stats/?period=today').then(r => r.data),
+    queryFn: () => client.get('/api/timer/sessions/stats/?period=today').then(r => r.data),
     refetchInterval: 60000,
   })
 
