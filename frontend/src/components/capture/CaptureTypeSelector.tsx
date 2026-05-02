@@ -4,9 +4,9 @@
  * Horizontal scrollable type chips
  */
 import { motion } from 'framer-motion'
-import { Link2, FileText, Code2, Upload, MessageSquare, Mic, LucideIcon } from 'lucide-react'
+import { Link2, FileText, Code2, Upload, MessageSquare, Mic, Music2, LucideIcon } from 'lucide-react'
 
-export type CaptureType = 'url' | 'note' | 'code' | 'file' | 'chat' | 'voice'
+export type CaptureType = 'url' | 'note' | 'code' | 'file' | 'chat' | 'voice' | 'music'
 
 interface CaptureTypeOption {
   type: CaptureType
@@ -16,12 +16,13 @@ interface CaptureTypeOption {
 }
 
 const CAPTURE_TYPES: CaptureTypeOption[] = [
-  { type: 'url', label: 'Link', icon: Link2, color: '#00f5d4' },
-  { type: 'note', label: 'Note', icon: FileText, color: '#6366f1' },
-  { type: 'code', label: 'Code', icon: Code2, color: '#10b981' },
-  { type: 'file', label: 'File', icon: Upload, color: '#f59e0b' },
-  { type: 'chat', label: 'Chat', icon: MessageSquare, color: '#ec4899' },
-  { type: 'voice', label: 'Voice', icon: Mic, color: '#f5a623' },
+  { type: 'url',   label: 'Link',  icon: Link2,        color: '#00f5d4' },
+  { type: 'note',  label: 'Note',  icon: FileText,     color: '#6366f1' },
+  { type: 'code',  label: 'Code',  icon: Code2,        color: '#10b981' },
+  { type: 'music', label: 'Music', icon: Music2,       color: '#f5a623' },
+  { type: 'file',  label: 'File',  icon: Upload,       color: '#f59e0b' },
+  { type: 'chat',  label: 'Chat',  icon: MessageSquare, color: '#ec4899' },
+  { type: 'voice', label: 'Voice', icon: Mic,          color: '#f5a623' },
 ]
 
 interface CaptureTypeSelectorProps {

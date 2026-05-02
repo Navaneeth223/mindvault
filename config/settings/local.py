@@ -41,6 +41,7 @@ LOCAL_APPS = [
     "apps.reminders",
     "apps.search",
     "apps.timer",
+    "apps.agent",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -158,6 +159,9 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 52_428_800
 
 WHISPER_MODEL = "tiny"
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+
+# ARIA Agent
+CHROMA_PATH = str(BASE_DIR / "chroma_db")
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 

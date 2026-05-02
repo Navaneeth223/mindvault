@@ -153,3 +153,22 @@ print('Demo user: demo / demo1234')"
 # Open Django shell in local Docker
 local-shell:
 	docker-compose -f docker-compose.local.yml exec backend python manage.py shell
+
+# ─── ARIA Agent ───────────────────────────────────────────────────────────────
+
+# Reindex all cards into ChromaDB for semantic search
+aria-index:
+	docker-compose exec backend python manage.py shell -c "\
+from django.contrib.auth import get_user_model; \
+from apps.cards.models import Card; \
+from apps.agent.memory import index_card; \
+User = get_user_model(); \
+total = 0; \
+for card in Card.objects.filter(is_archived=False): \
+    if index_card(card): total += 1; \
+print(f'Indexed {total} cards')"
+
+# Check ARIA/Ollama status
+aria-status:
+	@echo "Checking Ollama connection..."
+	@curl -s http://localhost:11434/api/tags 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('✅ Ollama running. Models:', [m['name'] for m in d.get('models',[])])" || echo "❌ Ollama not running. Start with: ollama serve"

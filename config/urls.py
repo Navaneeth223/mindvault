@@ -42,6 +42,9 @@ urlpatterns = [
 
     # ── Focus Timer ───────────────────────────────────────────────────────────
     path("api/timer/", include("apps.timer.urls")),
+
+    # ── ARIA Agent ────────────────────────────────────────────────────────────
+    path("api/agent/", include("apps.agent.urls")),
 ]
 
 # Serve media files in development

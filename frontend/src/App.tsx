@@ -16,6 +16,7 @@ import SettingsPage from './pages/SettingsPage'
 import SearchPage from './pages/SearchPage'
 import MusicPage from './pages/MusicPage'
 import TimerPage from './pages/TimerPage'
+import ARIAPage from './pages/ARIAPage'
 import OfflineIndicator from './components/ui/OfflineIndicator'
 import PWAInstallBanner from './components/ui/PWAInstallBanner'
 import PWAUpdatePrompt from './components/ui/PWAUpdatePrompt'
@@ -67,6 +68,7 @@ function AppRoutes() {
           <Route path="search"          element={<SearchPage />} />
           <Route path="music"           element={<MusicPage />} />
           <Route path="timer"           element={<TimerPage />} />
+          <Route path="aria"            element={<ARIAPage />} />
           <Route path="settings"        element={<SettingsPage />} />
         </Route>
 

@@ -340,7 +340,45 @@ export default useLocalStorage;
                 created_count += 1
 
         self.stdout.write(self.style.SUCCESS(f"✓ Created {created_count} demo cards"))
+
+        # Seed ARIA personal facts for demo user
+        from apps.agent.models import PersonalFact, AgentSettings
+        AgentSettings.objects.get_or_create(
+            user=demo_user,
+            defaults={
+                'llm_provider': 'ollama',
+                'llm_model': 'llama3.2',
+                'aria_name': 'ARIA',
+                'language_preference': 'en',
+            }
+        )
+
+        demo_facts = [
+            ('goal', 'Wants to become a professional full-stack developer'),
+            ('goal', 'Interested in building SaaS products for the Indian market'),
+            ('skill', 'Learning Django and Django REST Framework'),
+            ('skill', 'Familiar with React and TypeScript'),
+            ('context', 'Based in Kerala, India'),
+            ('context', 'Currently using MindVault to organise learning resources'),
+            ('preference', 'Prefers dark mode and minimal UI'),
+            ('habit', 'Saves articles and tutorials for later study'),
+        ]
+        facts_created = 0
+        for category, fact in demo_facts:
+            _, created = PersonalFact.objects.get_or_create(
+                user=demo_user,
+                fact=fact,
+                defaults={'category': category, 'source': 'Demo seed data'},
+            )
+            if created:
+                facts_created += 1
+
+        self.stdout.write(self.style.SUCCESS(f"✓ Created {facts_created} ARIA personal facts"))
         self.stdout.write(self.style.SUCCESS("\n🎉 Demo data seeded successfully!"))
         self.stdout.write(self.style.WARNING("\nLogin credentials:"))
         self.stdout.write("  Username: demo")
         self.stdout.write("  Password: demo1234")
+        self.stdout.write(self.style.WARNING("\nNext steps:"))
+        self.stdout.write("  1. Install Ollama: https://ollama.com")
+        self.stdout.write("  2. Pull a model: ollama pull llama3.2")
+        self.stdout.write("  3. Go to ARIA tab → Settings → Re-index vault")

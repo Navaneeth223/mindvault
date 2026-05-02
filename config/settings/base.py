@@ -50,6 +50,8 @@ LOCAL_APPS = [
     "apps.collections",
     "apps.reminders",
     "apps.search",
+    "apps.timer",
+    "apps.agent",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -215,6 +217,12 @@ CELERY_TASK_ROUTES = {
     "apps.cards.tasks.scrape_url_metadata": {"queue": "default"},
     "apps.cards.tasks.process_github": {"queue": "default"},
     "apps.reminders.tasks.check_reminders": {"queue": "default"},
+    # ARIA agent tasks
+    "apps.agent.tasks.extract_facts_background": {"queue": "default"},
+    "apps.agent.tasks.index_card_async": {"queue": "default"},
+    "apps.agent.tasks.auto_tag_card": {"queue": "default"},
+    "apps.agent.tasks.send_daily_briefing": {"queue": "default"},
+    "apps.agent.tasks.reindex_user_vault": {"queue": "media"},
 }
 
 # ─── Django Channels (WebSocket) ──────────────────────────────────────────────
@@ -240,6 +248,10 @@ WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "base")
 
 # ─── GitHub API ───────────────────────────────────────────────────────────────
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+
+# ─── ARIA Agent ───────────────────────────────────────────────────────────────
+# ChromaDB persistent storage path for vector embeddings
+CHROMA_PATH = os.environ.get("CHROMA_PATH", str(BASE_DIR / "chroma_db"))
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
 LOGGING = {

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.reminders",
     "apps.search",
     "apps.timer",
+    "apps.agent",
 ]
 
 # ─── Middleware ────────────────────────────────────────────────────────────────
@@ -178,6 +179,10 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 52_428_800
 
 # ─── Whisper (disabled on free tier) ─────────────────────────────────────────
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "tiny")
+
+# ─── ARIA Agent ───────────────────────────────────────────────────────────────
+CHROMA_PATH = os.environ.get("CHROMA_PATH", str(BASE_DIR / "chroma_db"))
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
 LOGGING = {

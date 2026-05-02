@@ -10,7 +10,7 @@ import { Play, Pause, Square, SkipForward, Settings2, Flame, CheckCircle2, XCirc
 import { useTimer } from '@/hooks/useTimer'
 import { useTimerStore } from '@/store/timerStore'
 import TimerRing from '@/components/timer/TimerRing'
-import client from '@/api/client'
+import { timerApi, TimerStats } from '@/api/timer'
 import { format } from 'date-fns'
 
 const AMBIENT_OPTIONS = [
@@ -85,18 +85,18 @@ export default function TimerPage() {
   // Today's sessions
   const { data: sessionsData } = useQuery({
     queryKey: ['timer-sessions-today'],
-    queryFn: () => client.get('/api/timer/sessions/?page_size=20').then(r => r.data),
+    queryFn: () => timerApi.listSessions({ page_size: 20 }),
     refetchInterval: timer.isRunning ? 30000 : false,
   })
 
   const { data: statsData } = useQuery({
     queryKey: ['timer-stats-today'],
-    queryFn: () => client.get('/api/timer/sessions/stats/?period=today').then(r => r.data),
+    queryFn: () => timerApi.getStats('today'),
     refetchInterval: 60000,
   })
 
   const sessions = sessionsData?.results || []
-  const stats = statsData || {}
+  const stats: Partial<TimerStats> = statsData || {}
   const totalFocusMinutes = Math.round((stats.total_focus_seconds || 0) / 60)
   const goalProgress = Math.min(100, (totalFocusMinutes / dailyGoal) * 100)
 

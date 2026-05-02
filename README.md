@@ -1,218 +1,285 @@
-# MindVault — Your Personal Second Brain
+# MindVault
 
-> Everything you've ever found worth keeping.
+**Everything you've ever found worth keeping.**
 
-**MindVault** is a self-hosted, offline-first personal knowledge management system. Capture YouTube videos, GitHub repos, notes, voice recordings (English + Malayalam), code snippets, bookmarks, and more — and make everything searchable, organized, and accessible from any device.
+MindVault is a personal second brain — a private, self-hosted knowledge vault where you capture, organise, and rediscover everything: YouTube videos, GitHub repos, bookmarks, voice notes (Malayalam + English), code snippets, PDFs, and more. With ARIA, your personal AI agent, it gets smarter the more you use it.
 
 ---
 
 ## ✨ Features
 
-### Content Types
-- **11 card types**: Links, YouTube, GitHub, Notes, Voice, Code, Images, PDFs, Reels, Chat, Files
-- **Smart capture**: Auto-detects content type from URLs
-- **Rich metadata**: Automatic scraping of titles, descriptions, thumbnails
+### Capture (Zero Friction)
+- **Quick Capture Modal** — Cmd+Shift+A or floating + button
+- **URL/Link** — Auto-scrape title, description, OG image, favicon
+- **YouTube** — Extract title, channel, thumbnail, duration
+- **GitHub** — Extract repo name, stars, language, README preview
+- **Markdown Notes** — Rich editor with live preview
+- **Voice Notes** — Record audio, real-time waveform, transcribe (Malayalam + English)
+- **Code Snippets** — Syntax highlighting, language detection
+- **Images/PDFs** — Drag-and-drop upload, auto-thumbnail
+- **Chat Excerpts** — Save conversations from WhatsApp, Telegram, etc.
+- **Music** — YouTube music library with global player
 
-### Voice & Transcription
-- **Malayalam + English support**: Real-time transcription via Web Speech API
-- **Fallback to Whisper**: Server-side transcription for unsupported browsers
-- **Audio waveform**: Animated visualization during recording
+### ARIA — Personal AI Agent
+- **Semantic Search** — Finds cards by meaning, not just keywords
+- **Persistent Memory** — Remembers your goals, skills, context across conversations
+- **Tool Use** — Saves cards, sets reminders, searches web, creates notes
+- **Malayalam Support** — Responds in Malayalam if configured
+- **Local-First** — Ollama = zero cost, zero privacy risk
+- **Daily Briefing** — Personalised morning summary
 
-### Offline-First PWA
-- **Works without internet**: Full offline functionality
-- **Background sync**: Automatic sync when reconnected
-- **Installable**: Add to home screen on mobile and desktop
-- **Push notifications**: Browser notifications for reminders
+### Organisation
+- **Collections** — Named folders with colour coding
+- **Smart Collections** — Saved filters that auto-populate
+- **Tags** — Free-form, multi-tag, autocomplete
+- **Favourites** — Single-click to star
+- **Archive** — Soft-delete without permanent removal
+- **Reminders** — Date + time picker on any card
 
-### Organization
-- **Collections**: Organize cards into collections with colors and icons
-- **Tags**: Multi-tag support with autocomplete and color coding
-- **Reminders**: Set reminders with quick options or custom dates
-- **Search**: Full-text search across titles, descriptions, and transcripts
+### Views & Search
+- **Grid View** — Masonry card layout
+- **List View** — Compact rows
+- **Global Search** — Cmd+K, searches title, description, transcript, body
+- **Filter** — By type, tag, collection, date range
 
-### Premium UI
-- **Linear/Notion-level design**: Professional, polished interface
-- **Smooth animations**: Framer Motion throughout
-- **Dark theme**: Easy on the eyes
-- **Responsive**: Mobile-first design
+### Focus Timer
+- **Pomodoro** — 25/50 min focus sessions
+- **Session Logging** — Track daily focus time
+- **Streak Counter** — Consecutive days with focus sessions
+- **Ambient Sound** — Rain, café sounds
+
+### PWA / Offline
+- **Installable** — Add to Home Screen on iOS, Android, desktop
+- **Offline Mode** — Cached cards viewable without internet
+- **Background Sync** — Captures queued and synced when back online
+
+### Browser Extension
+- **Save current page** — One click or Ctrl+Shift+S
+- **Context menu** — Right-click any link or selection
+- **Auto-detect type** — YouTube, GitHub, links
 
 ---
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
 ### Backend
-- **Django 5** - Web framework
-- **Django REST Framework** - API
-- **Celery** - Async task queue
-- **Redis** - Message broker & cache
-- **PostgreSQL** - Database (SQLite for dev)
-- **Whisper** - Speech-to-text
-- **Django Channels** - WebSocket support
+- Python 3.11 + Django 5.x + Django REST Framework
+- PostgreSQL (production) / SQLite (dev)
+- Celery + Redis for async tasks
+- Django Channels for WebSocket
+- Whisper for speech-to-text
+- ChromaDB for vector search (ARIA)
+- JWT authentication
 
 ### Frontend
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **TailwindCSS** - Styling
-- **Framer Motion** - Animations
-- **Zustand** - State management
-- **TanStack Query** - Server state
-- **Workbox** - PWA & offline
+- React 18 + TypeScript + Vite
+- TailwindCSS (custom dark theme)
+- Zustand + React Query
+- Framer Motion animations
+- Workbox PWA
 
-### Infrastructure
-- **Docker** - Containerization
-- **Nginx** - Reverse proxy
-- **IndexedDB** - Offline queue
+### AI (ARIA)
+- Ollama (free, local) — llama3.2, mistral, phi3.5
+- OpenAI (GPT-4o-mini)
+- Anthropic Claude (claude-3-5-haiku)
+- Google Gemini (gemini-1.5-flash)
+
+### DevOps
+- Docker + docker-compose
+- Nginx reverse proxy
+- Render (cloud deployment)
+- Vercel (frontend deployment)
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose
-- Node.js 18+ (for local development)
-- Python 3.11+ (for local development)
+- Docker + docker-compose
+- Git
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/mindvault.git
+git clone <your-repo-url> mindvault
 cd mindvault
 
-# Copy environment file
+# Copy environment variables
 cp .env.example .env
 
-# Edit .env with your settings
-nano .env
-
-# Build and start all services
+# Build and start
 make build
-make dev
-
-# Run database migrations
+make up
 make migrate
-
-# Load demo data (optional)
 make seed
+
+# Open in browser
+open http://localhost:5173
 ```
 
-Open http://localhost:5173
+### Demo Credentials
+- **Username**: `demo`
+- **Password**: `demo1234`
 
-**Demo credentials**: `demo` / `demo1234`
+### ARIA Setup (Optional — Free Local AI)
 
----
+```bash
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
 
-## 📱 Install as App
+# Pull a model (choose based on RAM)
+ollama pull llama3.2      # 2GB RAM — start here
+ollama pull mistral       # 5GB RAM — better quality
 
-### Android
-1. Open in Chrome
-2. Menu → "Add to Home Screen"
-3. Confirm installation
+# Index your vault
+make aria-index
 
-### iPhone
-1. Open in Safari
-2. Share → "Add to Home Screen"
-3. Confirm installation
-
-### Desktop
-1. Open in Chrome/Edge
-2. Click install icon in address bar
-3. Confirm installation
+# Go to ARIA tab and start chatting
+```
 
 ---
 
-## 🔌 Browser Extension
+## 📋 Make Commands
 
-The MindVault browser extension allows you to save the current page with one click.
-
-### Installation
-1. Open Chrome → Extensions → Developer mode → Load unpacked
-2. Select the `/extension` folder
-3. Click the MindVault icon
-4. Enter your server URL + login
+```bash
+make dev            # Start all services (foreground)
+make up             # Start all services (background)
+make build          # Build Docker images
+make stop           # Stop all services
+make clean          # Stop + remove volumes (destructive!)
+make migrate        # Run Django migrations
+make seed           # Seed demo data
+make shell          # Django shell_plus
+make test           # Run pytest
+make lint           # ESLint frontend
+make logs           # Tail all logs
+make aria-index     # Index vault into ChromaDB
+make aria-status    # Check Ollama connection
+```
 
 ---
 
 ## 📡 API Reference
 
 ### Authentication
-```http
+```
+POST /api/auth/register/
 POST /api/auth/login/
-Content-Type: application/json
-
-{
-  "username": "demo",
-  "password": "demo1234"
-}
+POST /api/auth/token/refresh/
+POST /api/auth/logout/
+GET  /api/auth/me/
 ```
 
 ### Cards
-```http
-# List cards (paginated, filtered)
-GET /api/cards/?page=1&page_size=20&is_favourite=true
-
-# Create card
-POST /api/cards/
-Content-Type: application/json
-
-{
-  "type": "link",
-  "url": "https://example.com",
-  "title": "Example",
-  "tags": ["web", "example"],
-  "collection": "uuid"
-}
-
-# Get card
-GET /api/cards/{id}/
-
-# Update card
-PATCH /api/cards/{id}/
-
-# Delete card
-DELETE /api/cards/{id}/destroy/
+```
+GET    /api/cards/                  List (paginated, filtered)
+POST   /api/cards/                  Create
+GET    /api/cards/{id}/             Retrieve
+PATCH  /api/cards/{id}/             Update
+DELETE /api/cards/{id}/             Soft delete (archive)
+POST   /api/cards/{id}/favourite/   Toggle favourite
+POST   /api/cards/{id}/archive/     Toggle archive
+POST   /api/cards/{id}/pin/         Toggle pin
+GET    /api/cards/random/           Random undiscovered card
 ```
 
-### Search
-```http
-GET /api/search/?q=django
+### ARIA Agent
+```
+POST   /api/agent/chat/             Main chat endpoint
+GET    /api/agent/conversations/    List conversations
+GET    /api/agent/memory/           Personal facts
+PATCH  /api/agent/memory/           Edit/delete fact
+POST   /api/agent/memory/add/       Add fact manually
+GET    /api/agent/settings/         Agent settings
+PATCH  /api/agent/settings/         Update settings
+POST   /api/agent/reindex/          Reindex vault
+GET    /api/agent/status/           LLM connection status
 ```
 
-### Collections
-```http
-GET /api/collections/
-POST /api/collections/
+### Other
 ```
-
-### Metadata Scraping
-```http
-POST /api/meta/scrape/
-Content-Type: application/json
-
-{
-  "url": "https://example.com"
-}
-```
-
-### File Upload
-```http
-POST /api/upload/
-Content-Type: multipart/form-data
-
-file: <binary>
-type: "voice"
-title: "My voice note"
+GET    /api/collections/
+GET    /api/search/?q=
+GET    /api/reminders/
+GET    /api/timer/sessions/
+POST   /api/meta/scrape/
+POST   /api/upload/
+GET    /api/export/
+GET    /api/health/
 ```
 
 ---
 
-## 🌍 Malayalam Support
+## 🎨 Design System
 
-Voice recording and transcription works in Malayalam (`ml-IN`) using:
-- **Web Speech API** (Chrome on Android/Desktop)
-- **Fallback: OpenAI Whisper** (server-side, `base` model)
+| Token | Value |
+|-------|-------|
+| Background | `#0f0f1a` |
+| Surface | `#1a1a2e` |
+| Accent | `#00f5d4` (electric cyan) |
+| Secondary | `#f5a623` (warm amber — voice/audio) |
+| Heading font | Instrument Serif |
+| Body font | DM Sans |
+| Code font | JetBrains Mono |
 
-This is a rare feature in open-source projects and makes MindVault accessible to Malayalam speakers.
+---
+
+## 🔌 Browser Extension
+
+Load from `extension/` folder in Chrome:
+1. Open `chrome://extensions`
+2. Enable "Developer mode"
+3. Click "Load unpacked"
+4. Select the `extension/` folder
+
+---
+
+## 📱 Mobile App
+
+React Native app in `mindvault-mobile/`:
+```bash
+cd mindvault-mobile
+npm install
+npx expo start
+```
+
+## 🖥️ Desktop App
+
+Electron app in `mindvault-desktop/`:
+```bash
+cd mindvault-desktop
+npm install
+npm run dev
+```
+
+---
+
+## 🚢 Deployment
+
+### Backend → Render (Free)
+1. Push to GitHub
+2. Create new Web Service on Render
+3. Connect repo, set `DJANGO_SETTINGS_MODULE=config.settings.production`
+4. Add environment variables from `.env.example`
+
+### Frontend → Vercel (Free)
+1. Import repo on Vercel
+2. Set root directory to `frontend`
+3. Set `VITE_API_URL` to your Render URL
+
+See `DEPLOYMENT.md` for detailed instructions.
+
+---
+
+## 🧪 Testing
+
+```bash
+# Backend
+make test
+
+# Frontend
+cd frontend && npm run lint
+```
 
 ---
 
@@ -220,188 +287,42 @@ This is a rare feature in open-source projects and makes MindVault accessible to
 
 ```
 mindvault/
-├── apps/                   # Django apps
-│   ├── accounts/           # User authentication
-│   ├── cards/              # Card CRUD, upload, export
-│   ├── collections/        # Collections management
-│   ├── reminders/          # Reminders & notifications
-│   └── search/             # Full-text search
-├── config/                 # Django settings
-│   ├── settings/           # Environment-specific settings
-│   ├── celery.py           # Celery configuration
-│   └── urls.py             # URL routing
-├── frontend/               # React PWA
-│   ├── src/
-│   │   ├── api/            # API client
-│   │   ├── components/     # React components
-│   │   ├── hooks/          # Custom hooks
-│   │   ├── pages/          # Page components
-│   │   ├── store/          # Zustand stores
-│   │   └── utils/          # Utilities
-│   ├── public/             # Static assets
-│   └── scripts/            # Build scripts
-├── extension/              # Chrome extension
-├── docker-compose.yml      # Docker services
-├── Dockerfile.backend      # Backend container
-├── Makefile                # Development commands
-└── requirements.txt        # Python dependencies
+├── apps/
+│   ├── accounts/      Auth & user management
+│   ├── cards/         Core card CRUD + async tasks
+│   ├── collections/   Collections
+│   ├── reminders/     Reminders
+│   ├── search/        Full-text search
+│   ├── timer/         Focus timer sessions
+│   └── agent/         ARIA AI agent
+├── config/            Django settings (base, local, dev, prod)
+├── extension/         Chrome browser extension
+├── frontend/          React + TypeScript SPA
+├── mindvault-mobile/  React Native mobile app
+├── mindvault-desktop/ Electron desktop app
+├── nginx/             Nginx config
+└── docs/              Documentation
 ```
 
 ---
 
-## 🏗 Development
+## 🌟 What Makes This Special
 
-### Backend Development
-
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run migrations
-python manage.py migrate
-
-# Create superuser
-python manage.py createsuperuser
-
-# Run development server
-python manage.py runserver
-
-# Run Celery worker
-celery -A config worker -l info
-```
-
-### Frontend Development
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Generate PWA icons
-npm run generate:icons
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-```
+1. **Local-first AI** — Ollama means zero API cost, zero privacy risk
+2. **Malayalam voice** — Rare in web apps, works in Chrome
+3. **Semantic search** — Finds cards by meaning, not keywords
+4. **Persistent memory** — ARIA remembers your goals across conversations
+5. **Full-stack PWA** — Works offline, installable on all platforms
+6. **Production-ready** — Docker, migrations, tests, deployment configs
 
 ---
 
-## 🧪 Testing
+## 📝 License
 
-### Backend Tests
-```bash
-python manage.py test
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm run test
-```
+MIT License — free to use, modify, and deploy.
 
 ---
 
-## 🚢 Deployment
+**Built with ❤️ in Kerala, India**
 
-### Docker Production
-
-```bash
-# Build production images
-docker-compose -f docker-compose.prod.yml build
-
-# Start services
-docker-compose -f docker-compose.prod.yml up -d
-
-# Run migrations
-docker-compose -f docker-compose.prod.yml exec backend python manage.py migrate
-
-# Collect static files
-docker-compose -f docker-compose.prod.yml exec backend python manage.py collectstatic --noinput
-```
-
-### Environment Variables
-
-```env
-# Django
-SECRET_KEY=your-secret-key
-DEBUG=False
-ALLOWED_HOSTS=yourdomain.com
-
-# Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/mindvault
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# Celery
-CELERY_BROKER_URL=redis://localhost:6379/0
-
-# Frontend
-VITE_API_URL=https://api.yourdomain.com
-```
-
----
-
-## 🤝 Contributing
-
-This is a personal/portfolio project, but contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Django** - Web framework
-- **React** - UI library
-- **TailwindCSS** - Styling
-- **Framer Motion** - Animations
-- **OpenAI Whisper** - Speech-to-text
-- **Workbox** - PWA support
-
----
-
-## 📧 Contact
-
-**Author**: Your Name  
-**Email**: your.email@example.com  
-**GitHub**: [@yourusername](https://github.com/yourusername)  
-**Portfolio**: [yourportfolio.com](https://yourportfolio.com)
-
----
-
-## 🎯 Why MindVault?
-
-This project was built as a personal learning project while studying Django and React. It represents a genuine tool I use daily — not a tutorial clone.
-
-### Features that make it portfolio-worthy:
-- **Malayalam voice recognition** (rare in open-source projects)
-- **Offline-first architecture** with background sync
-- **Production Docker setup** with Celery + Redis
-- **Real-world patterns**: JWT refresh, optimistic UI, React Query cache persistence
-- **Premium design**: Linear/Notion-level polish
-- **Complete feature set**: 11 card types, collections, tags, reminders, search
-
----
-
-**Built with ❤️ by a developer who wanted a better way to remember things.**
-
-**Star ⭐ this repo if you find it useful!**
+*MindVault — Everything you've ever found worth keeping.*

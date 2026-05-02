@@ -6,7 +6,7 @@
  */
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import client from '@/api/client'
+import { timerApi } from '@/api/timer'
 
 export type TimerPhase = 'focus' | 'short_break' | 'long_break'
 
@@ -56,7 +56,7 @@ export function useTimer(opts: UseTimerOptions): UseTimerReturn {
 
   // Save session to backend
   const saveMutation = useMutation({
-    mutationFn: (data: any) => client.post('/api/timer/sessions/', data),
+    mutationFn: timerApi.createSession,
   })
 
   const getPhaseSeconds = useCallback((p: TimerPhase) => {

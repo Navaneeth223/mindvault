@@ -5,7 +5,7 @@
  */
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Star, Plus, Bell, Timer } from 'lucide-react'
+import { Home, Star, Plus, Bell, Sparkles } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useUIStore } from '@/store/uiStore'
 import { cardsApi } from '@/api/cards'
@@ -25,10 +25,10 @@ function Badge({ count }: { count: number }) {
 }
 
 const tabs = [
-  { to: '/',           icon: Home,  label: 'Home',      end: true  },
-  { to: '/favourites', icon: Star,  label: 'Saved',     end: false },
-  { to: '/reminders',  icon: Bell,  label: 'Reminders', end: false },
-  { to: '/timer',      icon: Timer, label: 'Timer',     end: false },
+  { to: '/',           icon: Home,     label: 'Home',      end: true  },
+  { to: '/favourites', icon: Star,     label: 'Saved',     end: false },
+  { to: '/reminders',  icon: Bell,     label: 'Reminders', end: false },
+  { to: '/aria',       icon: Sparkles, label: 'ARIA',      end: false, accent: true },
 ]
 
 export default function BottomNav() {

@@ -5,7 +5,7 @@
  */
 import { NavLink } from 'react-router-dom'
 import { useState } from 'react'
-import { Home, Star, Archive, Bell, Settings, Plus, Music2, Timer } from 'lucide-react'
+import { Home, Star, Archive, Bell, Settings, Plus, Music2, Timer, Sparkles } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { collectionsApi } from '@/api/collections'
 import { cn } from '@/utils/cn'
@@ -15,6 +15,7 @@ const navItems = [
   { to: '/', icon: Home, label: 'Home' },
   { to: '/favourites', icon: Star, label: 'Favourites' },
   { to: '/reminders', icon: Bell, label: 'Reminders' },
+  { to: '/aria', icon: Sparkles, label: 'ARIA', accent: true },
   { to: '/music', icon: Music2, label: 'Music' },
   { to: '/timer', icon: Timer, label: 'Focus Timer' },
   { to: '/archive', icon: Archive, label: 'Archive' },
@@ -51,7 +52,9 @@ export default function Sidebar({ onClose }: { onClose: () => void }) {
                 'flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-150',
                 'hover:bg-dark-hover group min-h-[44px]',
                 isActive
-                  ? 'bg-dark-elevated text-accent-cyan border border-accent-cyan/20'
+                  ? item.accent
+                    ? 'bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20'
+                    : 'bg-dark-elevated text-accent-cyan border border-accent-cyan/20'
                   : 'text-dark-text-secondary hover:text-dark-text-primary'
               )
             }
@@ -59,9 +62,18 @@ export default function Sidebar({ onClose }: { onClose: () => void }) {
             {({ isActive }) => (
               <>
                 <item.icon className={cn('w-5 h-5 flex-shrink-0 transition-colors',
-                  isActive ? 'text-accent-cyan' : 'text-dark-text-muted group-hover:text-dark-text-secondary'
+                  isActive
+                    ? 'text-accent-cyan'
+                    : item.accent
+                    ? 'text-accent-cyan/60 group-hover:text-accent-cyan'
+                    : 'text-dark-text-muted group-hover:text-dark-text-secondary'
                 )} />
                 <span className="text-sm font-medium truncate">{item.label}</span>
+                {item.accent && !isActive && (
+                  <span className="ml-auto text-xs px-1.5 py-0.5 bg-accent-cyan/10 text-accent-cyan rounded border border-accent-cyan/20">
+                    AI
+                  </span>
+                )}
               </>
             )}
           </NavLink>
