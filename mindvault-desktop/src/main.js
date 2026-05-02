@@ -29,12 +29,17 @@ function getApiUrl() {
 }
 
 function getFrontendUrl() {
-  if (process.env.NODE_ENV === 'development') return 'http://localhost:5173'
+  // In dev mode: try localhost first, fall back to cloud if not running
+  if (process.env.NODE_ENV === 'development') {
+    // Check if local frontend is running; if not, use cloud
+    const localUrl = store.get('localFrontend', 'http://localhost:5173')
+    return localUrl
+  }
   const mode = store.get('frontendMode', 'remote')
   if (mode === 'local') {
     return `file://${path.join(__dirname, '../web-dist/index.html')}`
   }
-  return 'https://mindvault-pearl.vercel.app'
+  return store.get('cloudUrl', 'https://mindvault-pearl.vercel.app')
 }
 
 // ── Window ────────────────────────────────────────────────────────────────────
@@ -62,6 +67,15 @@ function createWindow() {
   })
 
   mainWindow.loadURL(getFrontendUrl())
+
+  // If localhost fails (frontend not running), load cloud URL
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    if (validatedURL.includes('localhost') || validatedURL.includes('127.0.0.1')) {
+      console.log('Local frontend not running, loading cloud URL...')
+      const cloudUrl = store.get('cloudUrl', 'https://mindvault-pearl.vercel.app')
+      mainWindow.loadURL(cloudUrl)
+    }
+  })
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
