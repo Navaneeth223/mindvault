@@ -39,6 +39,9 @@ function getFrontendUrl() {
 
 // ── Window ────────────────────────────────────────────────────────────────────
 function createWindow() {
+  const fs = require('fs')
+  const iconPath = path.join(__dirname, '../build/icon.png')
+
   mainWindow = new BrowserWindow({
     width: store.get('windowWidth', 1280),
     height: store.get('windowHeight', 800),
@@ -48,7 +51,7 @@ function createWindow() {
     y: store.get('windowY'),
     backgroundColor: '#1a1a2e',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    icon: path.join(__dirname, '../build/icon.png'),
+    icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -102,8 +105,19 @@ function saveWindowBounds() {
 
 // ── Tray ──────────────────────────────────────────────────────────────────────
 function createTray() {
-  const iconPath = path.join(__dirname, 'tray-icon.png')
-  tray = new Tray(iconPath)
+  // Try tray icon, fall back gracefully if missing
+  let iconPath = path.join(__dirname, 'tray-icon.png')
+  if (!require('fs').existsSync(iconPath)) {
+    iconPath = path.join(__dirname, '../build/icon.png')
+  }
+
+  try {
+    tray = new Tray(iconPath)
+  } catch (e) {
+    // If no icon at all, create tray without icon (won't crash)
+    console.warn('Tray icon not found, using default')
+    tray = new Tray(path.join(__dirname, 'tray-icon.png'))
+  }
 
   const buildMenu = () => Menu.buildFromTemplate([
     {
