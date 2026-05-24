@@ -23,7 +23,8 @@ services:
         value: https://mindvault-pearl.vercel.app
       - key: WHISPER_MODEL
         value: tiny
-    healthCheckPath: /api/auth/login/
+    # Health check removed - login endpoint requires POST, not GET
+    # Render will use default TCP check on port instead
 
 databases:
   - name: mindvault-db
