@@ -1,0 +1,38 @@
+# Render Blueprint for MindVault
+# This file can be used to create all services from scratch
+# Go to https://dashboard.render.com/select-repo and connect your repo
+# Render will automatically detect this file and create all services
+
+services:
+  - type: web
+    name: mindvault-api
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: export DJANGO_SETTINGS_MODULE=config.settings.build && pip install -r requirements.txt
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mindvault-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://mindvault-pearl.vercel.app
+      - key: WHISPER_MODEL
+        value: tiny
+
+databases:
+  - name: mindvault-db
+    databaseName: mindvault
+    user: mindvault
+    plan: free
+    region: oregon
