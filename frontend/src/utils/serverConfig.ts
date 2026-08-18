@@ -20,7 +20,7 @@ const STORAGE_KEY = 'mv-server-config'
 const DEFAULT_CONFIG: ServerConfig = {
   mode: 'cloud',
   localUrl: 'http://localhost:8000',
-  cloudUrl: import.meta.env.VITE_API_URL || 'https://mindvault-62ua.onrender.com',
+  cloudUrl: (import.meta.env.VITE_API_URL || 'https://mindvault-62ua.onrender.com').replace(/\/$/, ''),
   autoSwitch: false,
   keepAlive: false,
 }
@@ -41,15 +41,17 @@ export function saveServerConfig(config: Partial<ServerConfig>): void {
 
 export function getActiveApiUrl(): string {
   const config = getServerConfig()
-  return config.mode === 'local' ? config.localUrl : config.cloudUrl
+  const url = config.mode === 'local' ? config.localUrl : config.cloudUrl
+  return url.replace(/\/$/, '') // Always remove trailing slash
 }
 
 export async function testServer(url: string): Promise<{ ok: boolean; ms: number; status?: string }> {
   const start = performance.now()
+  const cleanUrl = url.replace(/\/$/, '') // Remove trailing slash
   try {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 5000)
-    const res = await fetch(`${url}/api/health/`, { signal: controller.signal })
+    const res = await fetch(`${cleanUrl}/api/health/`, { signal: controller.signal })
     clearTimeout(timeout)
     const ms = Math.round(performance.now() - start)
     if (res.ok) {
