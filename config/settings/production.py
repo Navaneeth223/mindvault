@@ -134,16 +134,40 @@ REST_FRAMEWORK = {
 # ─── CORS ─────────────────────────────────────────────────────────────────────
 _cors_env = os.environ.get("CORS_ALLOWED_ORIGINS", "")
 CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_env.split(",") if o.strip()]
+
+# Explicit Vercel origin
+if "mindvault-pearl.vercel.app" not in CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS.append("https://mindvault-pearl.vercel.app")
+
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://.*\.vercel\.app$",
     r"^https://.*\.onrender\.com$",
 ]
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = [
-    "accept", "accept-encoding", "authorization",
-    "content-type", "dnt", "origin", "user-agent",
-    "x-csrftoken", "x-requested-with",
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 ]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+CORS_EXPOSE_HEADERS = [
+    "content-type",
+    "x-csrftoken",
+]
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours
 
 # ─── Internationalisation ─────────────────────────────────────────────────────
 LANGUAGE_CODE = "en-us"

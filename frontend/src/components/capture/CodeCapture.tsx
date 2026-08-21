@@ -11,6 +11,7 @@ import Button from '../ui/Button'
 interface CodeCaptureProps {
   onSave: (data: { title: string; body: string; language: string }) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
 const LANGUAGES = [
@@ -36,12 +37,13 @@ const LANGUAGES = [
   { value: 'plaintext', label: 'Plain Text' },
 ]
 
-export default function CodeCapture({ onSave, onCancel }: CodeCaptureProps) {
+export default function CodeCapture({ onSave, onCancel, isLoading = false }: CodeCaptureProps) {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [language, setLanguage] = useState('javascript')
 
   const handleSave = () => {
+    if (isLoading) return
     onSave({
       title: title.trim() || `${LANGUAGES.find((l) => l.value === language)?.label} Snippet`,
       body: body.trim(),
@@ -49,7 +51,7 @@ export default function CodeCapture({ onSave, onCancel }: CodeCaptureProps) {
     })
   }
 
-  const canSave = body.trim().length > 0
+  const canSave = body.trim().length > 0 && !isLoading
 
   return (
     <div className="space-y-6">
@@ -111,11 +113,11 @@ export default function CodeCapture({ onSave, onCancel }: CodeCaptureProps) {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button variant="secondary" onClick={onCancel} className="flex-1">
+        <Button variant="secondary" onClick={onCancel} className="flex-1" disabled={isLoading}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave} disabled={!canSave} className="flex-1">
-          Save Code
+        <Button variant="primary" onClick={handleSave} disabled={!canSave} isLoading={isLoading} className="flex-1">
+          {isLoading ? 'Saving...' : 'Save Code'}
         </Button>
       </div>
     </div>

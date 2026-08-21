@@ -13,6 +13,7 @@ import Button from '../ui/Button'
 interface FileCaptureProps {
   onSave: (data: { file: File; title: string }) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
@@ -30,12 +31,13 @@ const formatFileSize = (bytes: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export default function FileCapture({ onSave, onCancel }: FileCaptureProps) {
+export default function FileCapture({ onSave, onCancel, isLoading = false }: FileCaptureProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
+    if (isLoading) return // Prevent file selection during upload
     setError(null)
 
     if (rejectedFiles.length > 0) {
@@ -79,14 +81,14 @@ export default function FileCapture({ onSave, onCancel }: FileCaptureProps) {
   }
 
   const handleSave = () => {
-    if (!selectedFile) return
+    if (!selectedFile || isLoading) return
     onSave({
       file: selectedFile,
       title: title.trim() || selectedFile.name,
     })
   }
 
-  const canSave = selectedFile !== null
+  const canSave = selectedFile !== null && !isLoading
 
   const FileIcon = selectedFile ? getFileIcon(selectedFile.type) : Upload
 
@@ -206,11 +208,11 @@ export default function FileCapture({ onSave, onCancel }: FileCaptureProps) {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button variant="secondary" onClick={onCancel} className="flex-1">
+        <Button variant="secondary" onClick={onCancel} className="flex-1" disabled={isLoading}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave} disabled={!canSave} className="flex-1">
-          Upload File
+        <Button variant="primary" onClick={handleSave} disabled={!canSave} isLoading={isLoading} className="flex-1">
+          {isLoading ? 'Uploading...' : 'Upload File'}
         </Button>
       </div>
     </div>

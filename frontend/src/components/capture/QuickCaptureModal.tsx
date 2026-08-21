@@ -95,6 +95,9 @@ export default function QuickCaptureModal() {
   // Create card mutation
   const createCardMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Get base URL from client configuration
+      const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+      
       // Handle file upload separately
       if (data.file) {
         const formData = new FormData()
@@ -104,7 +107,7 @@ export default function QuickCaptureModal() {
         if (data.tags) formData.append('tags', JSON.stringify(data.tags))
         if (data.reminder_at) formData.append('reminder_at', data.reminder_at)
 
-        const response = await fetch('/api/upload/', {
+        const response = await fetch(`${API_URL}/api/upload/`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access_token')}`,
@@ -112,7 +115,10 @@ export default function QuickCaptureModal() {
           body: formData,
         })
 
-        if (!response.ok) throw new Error('Upload failed')
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
+          throw new Error(error.detail || 'Upload failed')
+        }
         return response.json()
       }
 
@@ -128,7 +134,7 @@ export default function QuickCaptureModal() {
         if (data.tags) formData.append('tags', JSON.stringify(data.tags))
         if (data.reminder_at) formData.append('reminder_at', data.reminder_at)
 
-        const response = await fetch('/api/upload/', {
+        const response = await fetch(`${API_URL}/api/upload/`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access_token')}`,
@@ -136,7 +142,10 @@ export default function QuickCaptureModal() {
           body: formData,
         })
 
-        if (!response.ok) throw new Error('Upload failed')
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
+          throw new Error(error.detail || 'Upload failed')
+        }
         return response.json()
       }
 
