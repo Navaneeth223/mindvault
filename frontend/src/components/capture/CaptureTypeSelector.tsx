@@ -33,7 +33,14 @@ interface CaptureTypeSelectorProps {
 export default function CaptureTypeSelector({ selected, onChange }: CaptureTypeSelectorProps) {
   return (
     <div className="relative">
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      {/* Horizontal scroll container with custom scrollbar */}
+      <div 
+        className="flex gap-2 overflow-x-auto pb-2 scroll-smooth"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255, 255, 255, 0.2) transparent',
+        }}
+      >
         {CAPTURE_TYPES.map((option) => {
           const Icon = option.icon
           const isSelected = selected === option.type
@@ -45,7 +52,7 @@ export default function CaptureTypeSelector({ selected, onChange }: CaptureTypeS
               onClick={() => onChange(option.type)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all duration-200 whitespace-nowrap ${
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
                 isSelected
                   ? 'border-transparent shadow-soft-lg'
                   : 'border-dark-border hover:border-dark-text-muted'
@@ -71,6 +78,9 @@ export default function CaptureTypeSelector({ selected, onChange }: CaptureTypeS
           )
         })}
       </div>
+      
+      {/* Scroll hint - fade on edges */}
+      <div className="absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-dark-surface to-transparent pointer-events-none" />
     </div>
   )
 }

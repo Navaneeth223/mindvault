@@ -91,7 +91,7 @@ export const cardsApi = {
   },
 
   permanentDelete: async (id: string): Promise<void> => {
-    await client.delete(`/api/cards/${id}/destroy/`)
+    await client.delete(`/api/cards/${id}/destroy_permanent/`)
   },
 
   toggleFavourite: async (id: string): Promise<{ is_favourite: boolean }> => {
