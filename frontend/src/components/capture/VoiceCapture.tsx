@@ -333,9 +333,9 @@ export default function VoiceCapture({ onSave, onCancel, isLoading = false }: Vo
 
       {/* ── Actions ───────────────────────────────────────────────────────── */}
       <div className="flex gap-3">
-        <Button variant="secondary" onClick={onCancel} className="flex-1">Cancel</Button>
-        <Button variant="primary" onClick={handleSave} disabled={!canSave} className="flex-1">
-          Save Voice Note
+        <Button variant="secondary" onClick={onCancel} className="flex-1" disabled={isLoading}>Cancel</Button>
+        <Button variant="primary" onClick={handleSave} disabled={!canSave} isLoading={isLoading} className="flex-1">
+          {isLoading ? 'Saving...' : 'Save Voice Note'}
         </Button>
       </div>
     </div>
