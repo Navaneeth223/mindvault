@@ -11,6 +11,7 @@ import Button from '../ui/Button'
 interface ChatCaptureProps {
   onSave: (data: { title: string; body: string; source: string }) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
 const CHAT_SOURCES = [
@@ -26,12 +27,13 @@ const CHAT_SOURCES = [
   { value: 'other', label: 'Other' },
 ]
 
-export default function ChatCapture({ onSave, onCancel }: ChatCaptureProps) {
+export default function ChatCapture({ onSave, onCancel, isLoading = false }: ChatCaptureProps) {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [source, setSource] = useState('whatsapp')
 
   const handleSave = () => {
+    if (isLoading) return
     onSave({
       title: title.trim() || `${CHAT_SOURCES.find((s) => s.value === source)?.label} Chat`,
       body: body.trim(),
@@ -39,7 +41,7 @@ export default function ChatCapture({ onSave, onCancel }: ChatCaptureProps) {
     })
   }
 
-  const canSave = body.trim().length > 0
+  const canSave = body.trim().length > 0 && !isLoading
 
   return (
     <div className="space-y-6">
@@ -100,11 +102,11 @@ export default function ChatCapture({ onSave, onCancel }: ChatCaptureProps) {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button variant="secondary" onClick={onCancel} className="flex-1">
+        <Button variant="secondary" onClick={onCancel} className="flex-1" disabled={isLoading}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave} disabled={!canSave} className="flex-1">
-          Save Chat
+        <Button variant="primary" onClick={handleSave} disabled={!canSave} isLoading={isLoading} className="flex-1">
+          {isLoading ? 'Saving...' : 'Save Chat'}
         </Button>
       </div>
     </div>

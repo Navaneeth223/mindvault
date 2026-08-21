@@ -21,6 +21,7 @@ import Input from '../ui/Input'
 interface VoiceCaptureProps {
   onSave: (data: { audioBlob: Blob; transcript: string; title: string; language: string }) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
 type CaptureMode = 'en-US' | 'ml-IN' | 'manglish'
@@ -31,7 +32,7 @@ const MODES: { value: CaptureMode; flag: string; label: string; sublabel: string
   { value: 'manglish',  flag: '🔄', label: 'Manglish',  sublabel: 'Speak Malayalam → get English' },
 ]
 
-export default function VoiceCapture({ onSave, onCancel }: VoiceCaptureProps) {
+export default function VoiceCapture({ onSave, onCancel, isLoading = false }: VoiceCaptureProps) {
   const [mode, setMode] = useState<CaptureMode>('en-US')
   const [title, setTitle] = useState('')
   const [translatedText, setTranslatedText] = useState('')
@@ -111,7 +112,7 @@ export default function VoiceCapture({ onSave, onCancel }: VoiceCaptureProps) {
   }
 
   const handleSave = () => {
-    if (!audioBlob) return
+    if (!audioBlob || isLoading) return
     const finalTranscript = mode === 'manglish' ? translatedText : transcript
     onSave({
       audioBlob,
@@ -121,7 +122,7 @@ export default function VoiceCapture({ onSave, onCancel }: VoiceCaptureProps) {
     })
   }
 
-  const canSave = audioBlob && title.trim().length > 0
+  const canSave = audioBlob && title.trim().length > 0 && !isLoading
 
   // ── Displayed text ────────────────────────────────────────────────────────
   const displayTranscript = mode === 'manglish' ? translatedText : transcript
