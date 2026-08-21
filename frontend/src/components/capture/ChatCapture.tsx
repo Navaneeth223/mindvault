@@ -8,7 +8,7 @@ import { MessageSquare, ChevronDown } from 'lucide-react'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 
-interface ChatCaptureProps {
+export interface ChatCaptureProps {
   onSave: (data: { title: string; body: string; source: string }) => void
   onCancel: () => void
   isLoading?: boolean

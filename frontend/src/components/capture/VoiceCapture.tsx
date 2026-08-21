@@ -18,7 +18,7 @@ import WaveformVisualiser, { IdleWaveform } from './WaveformVisualiser'
 import Button from '../ui/Button'
 import Input from '../ui/Input'
 
-interface VoiceCaptureProps {
+export interface VoiceCaptureProps {
   onSave: (data: { audioBlob: Blob; transcript: string; title: string; language: string }) => void
   onCancel: () => void
   isLoading?: boolean
