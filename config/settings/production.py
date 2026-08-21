@@ -82,11 +82,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # ─── Database ─────────────────────────────────────────────────────────────────
+# Optimized for Render free tier (512MB memory limit)
 DATABASES = {
     "default": dj_database_url.config(
         default=os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3"),
-        conn_max_age=600,
+        conn_max_age=300,  # Reduced from 600 to save memory
         conn_health_checks=True,
+        options={
+            'MAX_CONNS': 5,  # Limit concurrent connections
+        }
     )
 }
 
@@ -108,6 +112,7 @@ SIMPLE_JWT = {
 }
 
 # ─── REST Framework ───────────────────────────────────────────────────────────
+# Optimized for low memory usage
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -116,7 +121,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 20,
+    "PAGE_SIZE": 10,  # Reduced from 20 to save memory
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
@@ -126,8 +131,8 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/hour",
-        "user": "2000/hour",
+        "anon": "50/hour",  # Reduced from 100 to prevent abuse
+        "user": "1000/hour",  # Reduced from 2000 to save resources
     },
 }
 
@@ -180,6 +185,17 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+# ─── Caching (Local memory cache for free tier) ──────────────────────────────
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'mindvault-cache',
+        'OPTIONS': {
+            'MAX_ENTRIES': 100,  # Low limit to save memory
+        }
+    }
+}
+
 # ─── Static & Media ───────────────────────────────────────────────────────────
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -203,8 +219,9 @@ SECURE_HSTS_PRELOAD = True
 TAGGIT_CASE_INSENSITIVE = True
 
 # ─── File Upload ──────────────────────────────────────────────────────────────
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52_428_800
-FILE_UPLOAD_MAX_MEMORY_SIZE = 52_428_800
+# Reduced for memory optimization on free tier
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10_485_760  # 10MB (reduced from 50MB)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10_485_760  # 10MB (reduced from 50MB)
 
 # ─── Whisper (disabled on free tier) ─────────────────────────────────────────
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "tiny")
