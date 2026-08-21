@@ -132,17 +132,22 @@ REST_FRAMEWORK = {
 }
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
-_cors_env = os.environ.get("CORS_ALLOWED_ORIGINS", "")
-CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_env.split(",") if o.strip()]
+# TEMPORARY: Allow all origins for debugging
+CORS_ALLOW_ALL_ORIGINS = os.environ.get("CORS_ALLOW_ALL", "False") == "True"
 
-# Explicit Vercel origin
-if "mindvault-pearl.vercel.app" not in CORS_ALLOWED_ORIGINS:
-    CORS_ALLOWED_ORIGINS.append("https://mindvault-pearl.vercel.app")
+if not CORS_ALLOW_ALL_ORIGINS:
+    _cors_env = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_env.split(",") if o.strip()]
+    
+    # Explicit Vercel origin
+    if "mindvault-pearl.vercel.app" not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append("https://mindvault-pearl.vercel.app")
+    
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        r"^https://.*\.vercel\.app$",
+        r"^https://.*\.onrender\.com$",
+    ]
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.vercel\.app$",
-    r"^https://.*\.onrender\.com$",
-]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     "DELETE",
