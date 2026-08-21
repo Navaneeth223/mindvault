@@ -144,13 +144,13 @@ export default function QuickCaptureModal() {
       return cardsApi.create(data)
     },
     onSuccess: () => {
-      // Close first, then invalidate — prevents freeze from simultaneous
-      // AnimatePresence exit + React Query re-render
-      closeCapture()
+      // Invalidate queries immediately to update the UI
+      queryClient.invalidateQueries({ queryKey: ['cards'] })
       toast.success('Card saved!')
+      // Close modal after a brief delay to show the success message
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['cards'] })
-      }, 350) // after modal exit animation completes
+        closeCapture()
+      }, 100)
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to save card')

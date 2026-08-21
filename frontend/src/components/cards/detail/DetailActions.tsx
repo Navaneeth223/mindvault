@@ -23,20 +23,47 @@ export default function DetailActions({ card, onClose }: DetailActionsProps) {
   const favouriteMutation = useMutation({
     mutationFn: () => cardsApi.toggleFavourite(card.id),
     onMutate: async () => {
+      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['card', card.id] })
-      const previous = queryClient.getQueryData(['card', card.id])
+      await queryClient.cancelQueries({ queryKey: ['cards'] })
+      
+      // Snapshot previous values
+      const previousCard = queryClient.getQueryData(['card', card.id])
+      const previousCards = queryClient.getQueryData(['cards'])
+      
+      // Optimistically update card detail
       queryClient.setQueryData(['card', card.id], (old: any) => ({
         ...old,
         is_favourite: !old.is_favourite,
       }))
-      return { previous }
+      
+      // Optimistically update card list
+      queryClient.setQueriesData({ queryKey: ['cards'] }, (old: any) => {
+        if (!old?.results) return old
+        return {
+          ...old,
+          results: old.results.map((c: Card) =>
+            c.id === card.id ? { ...c, is_favourite: !c.is_favourite } : c
+          ),
+        }
+      })
+      
+      return { previousCard, previousCards }
     },
     onSuccess: () => {
+      // Refetch in background to sync with server
       queryClient.invalidateQueries({ queryKey: ['cards'] })
+      queryClient.invalidateQueries({ queryKey: ['card', card.id] })
       toast.success(card.is_favourite ? 'Removed from favourites' : 'Added to favourites')
     },
     onError: (err, variables, context) => {
-      queryClient.setQueryData(['card', card.id], context?.previous)
+      // Rollback on error
+      if (context?.previousCard) {
+        queryClient.setQueryData(['card', card.id], context.previousCard)
+      }
+      if (context?.previousCards) {
+        queryClient.setQueryData(['cards'], context.previousCards)
+      }
       toast.error('Failed to update favourite')
     },
   })
@@ -44,13 +71,44 @@ export default function DetailActions({ card, onClose }: DetailActionsProps) {
   // Archive mutation
   const archiveMutation = useMutation({
     mutationFn: () => cardsApi.toggleArchive(card.id),
+    onMutate: async () => {
+      // Close the modal immediately for better UX
+      onClose()
+      
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['cards'] })
+      await queryClient.cancelQueries({ queryKey: ['cards-archived'] })
+      
+      // Snapshot previous values
+      const previousCards = queryClient.getQueryData(['cards'])
+      const previousArchivedCards = queryClient.getQueryData(['cards-archived'])
+      
+      // Optimistically remove card from list
+      queryClient.setQueriesData({ queryKey: ['cards'] }, (old: any) => {
+        if (!old?.results) return old
+        return {
+          ...old,
+          count: old.count - 1,
+          results: old.results.filter((c: Card) => c.id !== card.id),
+        }
+      })
+      
+      return { previousCards, previousArchivedCards }
+    },
     onSuccess: () => {
+      // Refetch in background to sync with server
       queryClient.invalidateQueries({ queryKey: ['cards'] })
       queryClient.invalidateQueries({ queryKey: ['cards-archived'] })
       toast.success(card.is_archived ? 'Restored from archive' : 'Moved to archive')
-      onClose()
     },
-    onError: () => {
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousCards) {
+        queryClient.setQueryData(['cards'], context.previousCards)
+      }
+      if (context?.previousArchivedCards) {
+        queryClient.setQueryData(['cards-archived'], context.previousArchivedCards)
+      }
       toast.error('Failed to archive')
     },
   })
@@ -58,12 +116,38 @@ export default function DetailActions({ card, onClose }: DetailActionsProps) {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: () => cardsApi.permanentDelete(card.id),
+    onMutate: async () => {
+      // Close the modal immediately for better UX
+      onClose()
+      
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['cards'] })
+      
+      // Snapshot previous value
+      const previousCards = queryClient.getQueryData(['cards'])
+      
+      // Optimistically remove card from list
+      queryClient.setQueriesData({ queryKey: ['cards'] }, (old: any) => {
+        if (!old?.results) return old
+        return {
+          ...old,
+          count: old.count - 1,
+          results: old.results.filter((c: Card) => c.id !== card.id),
+        }
+      })
+      
+      return { previousCards }
+    },
     onSuccess: () => {
+      // Refetch in background to sync with server
       queryClient.invalidateQueries({ queryKey: ['cards'] })
       toast.success('Card deleted permanently')
-      onClose()
     },
-    onError: () => {
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousCards) {
+        queryClient.setQueryData(['cards'], context.previousCards)
+      }
       toast.error('Failed to delete')
     },
   })
