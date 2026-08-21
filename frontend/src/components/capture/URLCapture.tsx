@@ -15,9 +15,10 @@ interface URLCaptureProps {
   initialUrl?: string
   onSave: (data: { url: string; metadata: ScrapedMetadata }) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
-export default function URLCapture({ initialUrl = '', onSave, onCancel }: URLCaptureProps) {
+export default function URLCapture({ initialUrl = '', onSave, onCancel, isLoading: isSaving = false }: URLCaptureProps) {
   const [url, setUrl] = useState(initialUrl)
   const [debouncedUrl, setDebouncedUrl] = useState(initialUrl)
 
@@ -52,11 +53,11 @@ export default function URLCapture({ initialUrl = '', onSave, onCancel }: URLCap
   })
 
   const handleSave = () => {
-    if (!metadata) return
+    if (!metadata || isSaving) return // Prevent duplicate submissions
     onSave({ url: debouncedUrl, metadata })
   }
 
-  const canSave = isValidUrl(url) && metadata && !error
+  const canSave = isValidUrl(url) && metadata && !error && !isSaving
 
   return (
     <div className="space-y-6">
@@ -73,6 +74,7 @@ export default function URLCapture({ initialUrl = '', onSave, onCancel }: URLCap
             placeholder="https://example.com"
             className="pl-12"
             autoFocus
+            disabled={isSaving}
           />
         </div>
         {url && !isValidUrl(url) && (
@@ -173,11 +175,11 @@ export default function URLCapture({ initialUrl = '', onSave, onCancel }: URLCap
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button variant="secondary" onClick={onCancel} className="flex-1">
+        <Button variant="secondary" onClick={onCancel} className="flex-1" disabled={isSaving}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave} disabled={!canSave} className="flex-1">
-          Save Link
+        <Button variant="primary" onClick={handleSave} disabled={!canSave} isLoading={isSaving} className="flex-1">
+          {isSaving ? 'Saving...' : 'Save Link'}
         </Button>
       </div>
     </div>

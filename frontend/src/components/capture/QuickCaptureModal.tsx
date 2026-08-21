@@ -159,6 +159,7 @@ export default function QuickCaptureModal() {
 
   // Handle URL capture
   const handleUrlSave = (data: { url: string; metadata: any }) => {
+    if (createCardMutation.isPending) return // Prevent duplicate submissions
     createCardMutation.mutate({
       type: data.metadata.type || 'link',
       url: data.url,
@@ -172,6 +173,7 @@ export default function QuickCaptureModal() {
 
   // Handle note capture
   const handleNoteSave = (data: { title: string; body: string }) => {
+    if (createCardMutation.isPending) return // Prevent duplicate submissions
     createCardMutation.mutate({
       type: 'note',
       title: data.title,
@@ -184,6 +186,7 @@ export default function QuickCaptureModal() {
 
   // Handle code capture
   const handleCodeSave = (data: { title: string; body: string; language: string }) => {
+    if (createCardMutation.isPending) return // Prevent duplicate submissions
     createCardMutation.mutate({
       type: 'code',
       title: data.title,
@@ -197,6 +200,7 @@ export default function QuickCaptureModal() {
 
   // Handle file capture
   const handleFileSave = (data: { file: File; title: string }) => {
+    if (createCardMutation.isPending) return // Prevent duplicate submissions
     createCardMutation.mutate({
       file: data.file,
       title: data.title,
@@ -208,6 +212,7 @@ export default function QuickCaptureModal() {
 
   // Handle chat capture
   const handleChatSave = (data: { title: string; body: string; source: string }) => {
+    if (createCardMutation.isPending) return // Prevent duplicate submissions
     createCardMutation.mutate({
       type: 'chat',
       title: data.title,
@@ -221,6 +226,7 @@ export default function QuickCaptureModal() {
 
   // Handle voice capture
   const handleVoiceSave = (data: { audioBlob: Blob; transcript: string; title: string; language: string }) => {
+    if (createCardMutation.isPending) return // Prevent duplicate submissions
     createCardMutation.mutate({
       audioBlob: data.audioBlob,
       title: data.title,
@@ -284,22 +290,22 @@ export default function QuickCaptureModal() {
                       transition={{ duration: 0.2 }}
                     >
                       {captureType === 'url' && (
-                        <URLCapture onSave={handleUrlSave} onCancel={closeCapture} />
+                        <URLCapture onSave={handleUrlSave} onCancel={closeCapture} isLoading={createCardMutation.isPending} />
                       )}
                       {captureType === 'note' && (
-                        <NoteCapture onSave={handleNoteSave} onCancel={closeCapture} />
+                        <NoteCapture onSave={handleNoteSave} onCancel={closeCapture} isLoading={createCardMutation.isPending} />
                       )}
                       {captureType === 'code' && (
-                        <CodeCapture onSave={handleCodeSave} onCancel={closeCapture} />
+                        <CodeCapture onSave={handleCodeSave} onCancel={closeCapture} isLoading={createCardMutation.isPending} />
                       )}
                       {captureType === 'file' && (
-                        <FileCapture onSave={handleFileSave} onCancel={closeCapture} />
+                        <FileCapture onSave={handleFileSave} onCancel={closeCapture} isLoading={createCardMutation.isPending} />
                       )}
                       {captureType === 'chat' && (
-                        <ChatCapture onSave={handleChatSave} onCancel={closeCapture} />
+                        <ChatCapture onSave={handleChatSave} onCancel={closeCapture} isLoading={createCardMutation.isPending} />
                       )}
                       {captureType === 'voice' && (
-                        <VoiceCapture onSave={handleVoiceSave} onCancel={closeCapture} />
+                        <VoiceCapture onSave={handleVoiceSave} onCancel={closeCapture} isLoading={createCardMutation.isPending} />
                       )}
                     </motion.div>
                   </AnimatePresence>

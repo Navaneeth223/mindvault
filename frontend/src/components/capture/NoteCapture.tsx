@@ -11,17 +11,19 @@ import Button from '../ui/Button'
 interface NoteCaptureProps {
   onSave: (data: { title: string; body: string }) => void
   onCancel: () => void
+  isLoading?: boolean
 }
 
-export default function NoteCapture({ onSave, onCancel }: NoteCaptureProps) {
+export default function NoteCapture({ onSave, onCancel, isLoading = false }: NoteCaptureProps) {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
 
   const handleSave = () => {
+    if (isLoading) return // Prevent duplicate submissions
     onSave({ title: title.trim() || 'Untitled Note', body: body.trim() })
   }
 
-  const canSave = body.trim().length > 0
+  const canSave = body.trim().length > 0 && !isLoading
 
   return (
     <div className="space-y-6">
@@ -70,11 +72,11 @@ export default function NoteCapture({ onSave, onCancel }: NoteCaptureProps) {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button variant="secondary" onClick={onCancel} className="flex-1">
+        <Button variant="secondary" onClick={onCancel} className="flex-1" disabled={isLoading}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave} disabled={!canSave} className="flex-1">
-          Save Note
+        <Button variant="primary" onClick={handleSave} disabled={!canSave} isLoading={isLoading} className="flex-1">
+          {isLoading ? 'Saving...' : 'Save Note'}
         </Button>
       </div>
     </div>
