@@ -133,7 +133,8 @@ export default function SettingsPage() {
   useEffect(() => {
     if (serverConfig.keepAlive) {
       const id = window.setInterval(() => {
-        fetch(`${serverConfig.cloudUrl}/api/health/`).catch(() => {})
+        const url = serverConfig.cloudUrl.replace(/\/$/, '') // Remove trailing slash
+        fetch(`${url}/api/health/`).catch(() => {})
       }, 14 * 60 * 1000) // every 14 minutes
       setKeepAliveInterval(id)
       return () => clearInterval(id)
